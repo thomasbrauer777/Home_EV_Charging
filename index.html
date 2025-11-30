@@ -517,9 +517,43 @@
             // If in simulation mode and no data, generate some
             if (settings.mode === 'simulation' && charges.length === 0) {
                 generateSimulationData();
+                // Also generate some payment history for demo
+                generateDemoPaymentHistory();
             }
             
             updateDisplay();
+        }
+        
+        // Generate demo payment history
+        function generateDemoPaymentHistory() {
+            const now = new Date();
+            
+            // Add 2-3 past payments for demo
+            const numPayments = 3;
+            
+            for (let i = 0; i < numPayments; i++) {
+                const monthsAgo = i + 1;
+                const paymentDate = new Date(now);
+                paymentDate.setMonth(paymentDate.getMonth() - monthsAgo);
+                
+                // Random charges for that month
+                const numCharges = Math.floor(Math.random() * 10) + 8; // 8-17 charges
+                const totalKwh = (Math.random() * 100 + 150).toFixed(2); // 150-250 kWh per month
+                const avgPrice = (settings.priceHigh + settings.priceLow) / 2;
+                const totalCost = parseFloat(totalKwh) * avgPrice;
+                const costPerParty = totalCost / 3;
+                
+                paymentHistory.push({
+                    date: paymentDate.toISOString(),
+                    totalKwh: parseFloat(totalKwh),
+                    totalCost: totalCost,
+                    costPerParty: costPerParty,
+                    chargeCount: numCharges
+                });
+            }
+            
+            paymentHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+            saveData();
         }
 
         // Save data to localStorage
@@ -968,32 +1002,28 @@
                 charges = [];
                 paymentHistory = [];
                 settings.lastReset = null;
+                
+                // If in simulation mode, regenerate demo data
+                if (settings.mode === 'simulation') {
+                    generateSimulationData();
+                    generateDemoPaymentHistory();
+                }
+                
                 saveData();
                 updateDisplay();
-                alert('✅ Alle Daten wurden gelöscht!');
+                
+                if (settings.mode === 'simulation') {
+                    alert('✅ Alle Daten wurden zurückgesetzt und neue Demo-Daten generiert!');
+                } else {
+                    alert('✅ Alle Daten wurden gelöscht!');
+                }
             }
         }
 
-        // Auto-refresh in simulation mode
+        // Auto-refresh in simulation mode (disabled - only updates display)
         function autoRefresh() {
-            if (settings.mode === 'simulation') {
-                // Randomly add a charge every 30-60 seconds (for demo)
-                const shouldAdd = Math.random() < 0.05; // 5% chance every second
-                if (shouldAdd) {
-                    const kwh = (Math.random() * 30 + 15).toFixed(2);
-                    const now = new Date();
-                    const tariff = getTariff(now);
-                    
-                    charges.unshift({
-                        date: now.toISOString(),
-                        kwh: parseFloat(kwh),
-                        tariff: tariff.type,
-                        price: tariff.price
-                    });
-                    saveData();
-                    updateDisplay();
-                }
-            }
+            // Just update the display, don't add new charges automatically
+            // User can manually add charges if needed
         }
 
         // Initialize
