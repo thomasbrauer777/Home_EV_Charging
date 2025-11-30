@@ -262,7 +262,7 @@
         <div class="header">
             <h1>⚡ E-Auto Ladekosten - Gemeinsame Abrechnung</h1>
             <span class="mode-badge" id="modeBadge">🔄 Simulationsmodus</span>
-            <p style="margin-top: 15px; color: #666;">Kostenaufteilung auf 3 Parteien: Ihre Familie, Familie Odermatt & Familie Stäheli</p>
+            <p style="margin-top: 15px; color: #666;">Kostenaufteilung auf 3 Parteien: Familie Bräuer, Familie Odermatt & Familie Stäheli</p>
         </div>
 
         <div class="controls">
@@ -309,7 +309,8 @@
                 <strong>Stromtarife (CLASSIC):</strong> Das System verwendet automatisch den richtigen Tarif basierend auf der Ladezeit:<br>
                 • <strong>Hochtarif (Tag)</strong>: 7-22 Uhr → 16.68 Rp./kWh<br>
                 • <strong>Niedertarif (Nacht)</strong>: 22-7 Uhr → 16.06 Rp./kWh<br>
-                <strong>Kostenaufteilung:</strong> Die Gesamtkosten werden automatisch durch 3 geteilt (Ihre Familie, Familie Odermatt, Familie Stäheli).</p>
+                <strong>Kostenaufteilung:</strong> Die Gesamtkosten werden automatisch durch 3 geteilt (Familie Bräuer, Familie Odermatt, Familie Stäheli).<br>
+                <strong>Gesamtkosten-Übersicht:</strong> Wenn ihr "Als bezahlt markieren" klickt, werden die Kosten in die Monatsübersicht übertragen. So kann Familie Bräuer genau sehen, wie viel sie pro Monat für Ladekosten ausgegeben hat!</p>
             </div>
         </div>
 
@@ -327,6 +328,18 @@
                 <div class="stat">
                     <div class="stat-label">Anzahl Ladevorgänge</div>
                     <div class="stat-value" id="chargeCount">0</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>👨‍👩‍👧‍👦 Familie Bräuer</h2>
+                <div class="stat">
+                    <div class="stat-label">Anteil (⅓ der Kosten)</div>
+                    <div class="stat-value" id="brauerCost">0.00<span class="stat-unit">CHF</span></div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Status</div>
+                    <div style="color: #ef4444; margin-top: 5px; font-size: 1.1em; font-weight: 600;" id="brauerStatus">Ausstehend</div>
                 </div>
             </div>
 
@@ -403,6 +416,44 @@
         </div>
 
         <div class="card">
+            <h2>💰 Gesamtkosten nach Monat (Familie Bräuer)</h2>
+            <p style="color: #666; margin-bottom: 15px;">Hier siehst du deine monatlichen Ladekosten über alle Abrechnungszeiträume hinweg</p>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Monat</th>
+                        <th>Anzahl Zahlungen</th>
+                        <th>Verbrauch (kWh)</th>
+                        <th>Dein Anteil (CHF)</th>
+                        <th>Gesamtkosten (CHF)</th>
+                    </tr>
+                </thead>
+                <tbody id="monthlyStatsTable">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #999;">Noch keine Zahlungen erfasst</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <strong>Gesamtsumme (alle Monate):</strong>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">
+                    <div>
+                        <div style="color: #666; font-size: 0.9em;">Gesamt Verbrauch</div>
+                        <div style="font-size: 1.5em; font-weight: bold; color: #667eea;" id="totalAllKwh">0 kWh</div>
+                    </div>
+                    <div>
+                        <div style="color: #666; font-size: 0.9em;">Dein Anteil (⅓)</div>
+                        <div style="font-size: 1.5em; font-weight: bold; color: #667eea;" id="totalBrauerCost">0.00 CHF</div>
+                    </div>
+                    <div>
+                        <div style="color: #666; font-size: 0.9em;">Gesamtkosten (alle 3 Familien)</div>
+                        <div style="font-size: 1.5em; font-weight: bold; color: #667eea;" id="totalAllCost">0.00 CHF</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
             <h2>📝 Ladevorgänge Historie</h2>
             <table class="history-table">
                 <thead>
@@ -427,6 +478,7 @@
     <script>
         // Data storage
         let charges = [];
+        let paymentHistory = []; // Store all past payments
         let settings = {
             mode: 'simulation',
             priceHigh: 0.1668, // Hochtarif (Tag): 7.17 + 6.17 + 3.34 Rp./kWh
@@ -439,9 +491,14 @@
         function loadData() {
             const savedCharges = localStorage.getItem('evCharges');
             const savedSettings = localStorage.getItem('evSettings');
+            const savedPayments = localStorage.getItem('evPaymentHistory');
             
             if (savedCharges) {
                 charges = JSON.parse(savedCharges);
+            }
+            
+            if (savedPayments) {
+                paymentHistory = JSON.parse(savedPayments);
             }
             
             if (savedSettings) {
@@ -465,6 +522,7 @@
         function saveData() {
             localStorage.setItem('evCharges', JSON.stringify(charges));
             localStorage.setItem('evSettings', JSON.stringify(settings));
+            localStorage.setItem('evPaymentHistory', JSON.stringify(paymentHistory));
         }
 
         // Determine tariff based on time (7-22 = high, 22-7 = low)
@@ -509,6 +567,7 @@
             updateStats();
             updateHistory();
             updateChart();
+            updateMonthlyStats();
         }
 
         // Update statistics
@@ -543,19 +602,25 @@
             document.getElementById('chargeCount').textContent = relevantCharges.length;
             
             // Update party costs
+            document.getElementById('brauerCost').innerHTML = costPerParty.toFixed(2) + '<span class="stat-unit">CHF</span>';
             document.getElementById('odermattCost').innerHTML = costPerParty.toFixed(2) + '<span class="stat-unit">CHF</span>';
             document.getElementById('staeheliCost').innerHTML = costPerParty.toFixed(2) + '<span class="stat-unit">CHF</span>';
             
             // Update status
+            const brauerStatus = document.getElementById('brauerStatus');
             const odermattStatus = document.getElementById('odermattStatus');
             const staeheliStatus = document.getElementById('staeheliStatus');
             
             if (costPerParty > 0) {
+                brauerStatus.textContent = 'Ausstehend';
+                brauerStatus.style.color = '#ef4444';
                 odermattStatus.textContent = 'Ausstehend';
                 odermattStatus.style.color = '#ef4444';
                 staeheliStatus.textContent = 'Ausstehend';
                 staeheliStatus.style.color = '#ef4444';
             } else {
+                brauerStatus.textContent = 'Bezahlt ✓';
+                brauerStatus.style.color = '#10b981';
                 odermattStatus.textContent = 'Bezahlt ✓';
                 odermattStatus.style.color = '#10b981';
                 staeheliStatus.textContent = 'Bezahlt ✓';
@@ -639,6 +704,75 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        // Update monthly statistics
+        function updateMonthlyStats() {
+            const tbody = document.getElementById('monthlyStatsTable');
+            
+            if (paymentHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Noch keine Zahlungen erfasst</td></tr>';
+                document.getElementById('totalAllKwh').textContent = '0 kWh';
+                document.getElementById('totalBrauerCost').textContent = '0.00 CHF';
+                document.getElementById('totalAllCost').textContent = '0.00 CHF';
+                return;
+            }
+            
+            // Group payments by month
+            const monthlyData = {};
+            
+            paymentHistory.forEach(payment => {
+                const date = new Date(payment.date);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = {
+                        date: date,
+                        count: 0,
+                        totalKwh: 0,
+                        totalCost: 0,
+                        brauerCost: 0
+                    };
+                }
+                
+                monthlyData[monthKey].count++;
+                monthlyData[monthKey].totalKwh += payment.totalKwh;
+                monthlyData[monthKey].totalCost += payment.totalCost;
+                monthlyData[monthKey].brauerCost += payment.costPerParty;
+            });
+            
+            // Convert to array and sort by date (newest first)
+            const sortedMonths = Object.entries(monthlyData)
+                .sort((a, b) => b[1].date - a[1].date);
+            
+            // Calculate totals
+            let totalKwh = 0;
+            let totalBrauerCost = 0;
+            let totalAllCost = 0;
+            
+            // Generate table rows
+            tbody.innerHTML = sortedMonths.map(([monthKey, data]) => {
+                totalKwh += data.totalKwh;
+                totalBrauerCost += data.brauerCost;
+                totalAllCost += data.totalCost;
+                
+                const monthName = data.date.toLocaleDateString('de-CH', { year: 'numeric', month: 'long' });
+                
+                return `
+                    <tr>
+                        <td>${monthName}</td>
+                        <td>${data.count}</td>
+                        <td>${data.totalKwh.toFixed(2)}</td>
+                        <td><strong>${data.brauerCost.toFixed(2)}</strong></td>
+                        <td>${data.totalCost.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Update totals
+            document.getElementById('totalAllKwh').textContent = totalKwh.toFixed(2) + ' kWh';
+            document.getElementById('totalBrauerCost').textContent = totalBrauerCost.toFixed(2) + ' CHF';
+            document.getElementById('totalAllCost').textContent = totalAllCost.toFixed(2) + ' CHF';
         }
 
         // Update chart
@@ -745,8 +879,22 @@
 
         // Mark as paid (reset billing period)
         function markAsPaid() {
-            // Calculate total cost considering tariffs
-            const totalCost = charges.reduce((sum, c) => {
+            // Get charges since last reset
+            let relevantCharges = charges;
+            if (settings.lastReset) {
+                const resetDate = new Date(settings.lastReset);
+                relevantCharges = charges.filter(c => new Date(c.date) > resetDate);
+            }
+            
+            if (relevantCharges.length === 0) {
+                alert('ℹ️ Es gibt keine ausstehenden Kosten zum Bezahlen.');
+                return;
+            }
+            
+            // Calculate total kWh and cost
+            const totalKwh = relevantCharges.reduce((sum, c) => sum + c.kwh, 0);
+            
+            const totalCost = relevantCharges.reduce((sum, c) => {
                 let price = c.price;
                 if (!c.tariff) {
                     const date = new Date(c.date);
@@ -764,22 +912,35 @@
             }
             
             const message = `Folgende Beträge als bezahlt markieren?\n\n` +
+                           `Familie Bräuer: CHF ${costPerParty.toFixed(2)}\n` +
                            `Familie Odermatt: CHF ${costPerParty.toFixed(2)}\n` +
                            `Familie Stäheli: CHF ${costPerParty.toFixed(2)}\n\n` +
-                           `Die Ladevorgänge bleiben in der Historie sichtbar, aber die Abrechnung wird zurückgesetzt.`;
+                           `Gesamt: CHF ${totalCost.toFixed(2)} (${totalKwh.toFixed(2)} kWh)\n\n` +
+                           `Die Zahlung wird in der Gesamtkosten-Übersicht gespeichert.`;
             
             if (confirm(message)) {
+                // Add to payment history
+                paymentHistory.push({
+                    date: new Date().toISOString(),
+                    totalKwh: totalKwh,
+                    totalCost: totalCost,
+                    costPerParty: costPerParty,
+                    chargeCount: relevantCharges.length
+                });
+                
+                // Update last reset date
                 settings.lastReset = new Date().toISOString();
                 saveData();
                 updateDisplay();
-                alert('✅ Kosten als bezahlt markiert! Der Abrechnungszeitraum wurde zurückgesetzt.');
+                alert('✅ Kosten als bezahlt markiert und in Gesamtkosten-Übersicht gespeichert!\n\nDer Abrechnungszeitraum wurde zurückgesetzt.');
             }
         }
 
         // Reset data
         function resetData() {
-            if (confirm('⚠️ Wirklich alle Daten löschen? Dies kann nicht rückgängig gemacht werden!')) {
+            if (confirm('⚠️ Wirklich alle Daten löschen? Dies löscht auch die Gesamtkosten-Übersicht! Dies kann nicht rückgängig gemacht werden!')) {
                 charges = [];
+                paymentHistory = [];
                 settings.lastReset = null;
                 saveData();
                 updateDisplay();
