@@ -479,8 +479,29 @@
         </div>
     </div>
 
-    <script>
-        // Data storage
+    <script type="module">
+        // ============================================
+        // SUPABASE KONFIGURATION
+        // ============================================
+        // TODO: Ersetze diese Werte mit deinen echten Supabase Credentials!
+        const SUPABASE_URL = 'https://fgvjxgcgbdzuewukxedo.supabase.co'
+        const SUPABASE_ANON_KEY = 'sb_publishable_jwhIu3K8Leik-CH4AWImFw_y4pilTVq'
+        
+        // TODO: Erstelle eine einzigartige ID für diese Installation
+        // z.B. 'braeuer-odermatt-staeheli-bremgarten'
+        const INSTALLATION_ID = 'demo-installation-1'
+        
+        // Supabase Client importieren (CDN)
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+        
+        // Supabase Client initialisieren
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        
+        console.log('✅ Supabase connected:', SUPABASE_URL)
+        
+        // ============================================
+        // DATA STORAGE
+        // ============================================
         let charges = [];
         let paymentHistory = []; // Store all past payments
         let settings = {
@@ -491,42 +512,66 @@
             lastReset: null
         };
 
-        // Load data from localStorage
-        function loadData() {
-            const savedCharges = localStorage.getItem('evCharges');
-            const savedSettings = localStorage.getItem('evSettings');
-            const savedPayments = localStorage.getItem('evPaymentHistory');
-            
-            if (savedCharges) {
-                charges = JSON.parse(savedCharges);
+        // Load data from Supabase
+        async function loadData() {
+            try {
+                // Load settings from localStorage (still local for UI preferences)
+                const savedSettings = localStorage.getItem('evSettings');
+                if (savedSettings) {
+                    const parsed = JSON.parse(savedSettings);
+                    settings = { ...settings, ...parsed };
+                    document.getElementById('modeSelect').value = settings.mode;
+                    document.getElementById('priceHighInput').value = settings.priceHigh || 0.1668;
+                    document.getElementById('priceLowInput').value = settings.priceLow || 0.1606;
+                    document.getElementById('shellyIp').value = settings.shellyIp || '';
+                    updateModeDisplay();
+                }
+                
+                // Load charges from Supabase
+                const { data: chargesData, error: chargesError } = await supabase
+                    .from('charges')
+                    .select('*')
+                    .eq('installation_id', INSTALLATION_ID)
+                    .order('date', { ascending: false });
+                
+                if (chargesError) {
+                    console.error('Error loading charges:', chargesError);
+                } else {
+                    charges = chargesData || [];
+                    console.log(`Loaded ${charges.length} charges from Supabase`);
+                }
+                
+                // Load payment history from Supabase
+                const { data: paymentsData, error: paymentsError } = await supabase
+                    .from('payment_history')
+                    .select('*')
+                    .eq('installation_id', INSTALLATION_ID)
+                    .order('payment_date', { ascending: false });
+                
+                if (paymentsError) {
+                    console.error('Error loading payments:', paymentsError);
+                } else {
+                    paymentHistory = paymentsData || [];
+                    console.log(`Loaded ${paymentHistory.length} payments from Supabase`);
+                }
+                
+                // If in simulation mode and no data, generate some
+                if (settings.mode === 'simulation' && charges.length === 0) {
+                    await generateSimulationData();
+                    await generateDemoPaymentHistory();
+                }
+                
+                updateDisplay();
+            } catch (error) {
+                console.error('Error in loadData:', error);
+                alert('Fehler beim Laden der Daten. Bitte überprüfe deine Supabase-Konfiguration.');
             }
-            
-            if (savedPayments) {
-                paymentHistory = JSON.parse(savedPayments);
-            }
-            
-            if (savedSettings) {
-                settings = JSON.parse(savedSettings);
-                document.getElementById('modeSelect').value = settings.mode;
-                document.getElementById('priceHighInput').value = settings.priceHigh || 0.1668;
-                document.getElementById('priceLowInput').value = settings.priceLow || 0.1606;
-                document.getElementById('shellyIp').value = settings.shellyIp || '';
-                updateModeDisplay();
-            }
-            
-            // If in simulation mode and no data, generate some
-            if (settings.mode === 'simulation' && charges.length === 0) {
-                generateSimulationData();
-                // Also generate some payment history for demo
-                generateDemoPaymentHistory();
-            }
-            
-            updateDisplay();
         }
         
         // Generate demo payment history
-        function generateDemoPaymentHistory() {
+        async function generateDemoPaymentHistory() {
             const now = new Date();
+            const newPayments = [];
             
             // Add 2-3 past payments for demo
             const numPayments = 3;
@@ -543,24 +588,39 @@
                 const totalCost = parseFloat(totalKwh) * avgPrice;
                 const costPerParty = totalCost / 3;
                 
-                paymentHistory.push({
-                    date: paymentDate.toISOString(),
-                    totalKwh: parseFloat(totalKwh),
-                    totalCost: totalCost,
-                    costPerParty: costPerParty,
-                    chargeCount: numCharges
+                newPayments.push({
+                    installation_id: INSTALLATION_ID,
+                    payment_date: paymentDate.toISOString(),
+                    total_kwh: parseFloat(totalKwh),
+                    total_cost: totalCost,
+                    cost_per_party: costPerParty,
+                    charge_count: numCharges
                 });
             }
             
-            paymentHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
-            saveData();
+            // Save to Supabase
+            if (newPayments.length > 0) {
+                const { data, error } = await supabase
+                    .from('payment_history')
+                    .insert(newPayments)
+                    .select();
+                
+                if (error) {
+                    console.error('Error saving demo payments:', error);
+                } else {
+                    paymentHistory = data.sort((a, b) => new Date(b.payment_date) - new Date(a.payment_date));
+                    console.log(`✅ Generated ${paymentHistory.length} demo payments`);
+                }
+            }
         }
 
-        // Save data to localStorage
-        function saveData() {
-            localStorage.setItem('evCharges', JSON.stringify(charges));
+        // Save data to Supabase
+        async function saveData() {
+            // Settings still saved locally (UI preferences)
             localStorage.setItem('evSettings', JSON.stringify(settings));
-            localStorage.setItem('evPaymentHistory', JSON.stringify(paymentHistory));
+            
+            // Charges and payments are saved individually when created/updated
+            // No need to bulk save here anymore
         }
 
         // Determine tariff based on time (7-22 = high, 22-7 = low)
@@ -574,8 +634,9 @@
         }
 
         // Generate simulation data
-        function generateSimulationData() {
+        async function generateSimulationData() {
             const today = new Date();
+            const newCharges = [];
             
             // Generate charges for the last 7 days with max 2 per day
             for (let daysAgo = 6; daysAgo >= 0; daysAgo--) {
@@ -600,7 +661,8 @@
                     const kwh = (Math.random() * 10 + 10).toFixed(2); // 10-20 kWh
                     const tariff = getTariff(date);
                     
-                    charges.push({
+                    newCharges.push({
+                        installation_id: INSTALLATION_ID,
                         date: date.toISOString(),
                         kwh: parseFloat(kwh),
                         tariff: tariff.type,
@@ -609,8 +671,20 @@
                 }
             }
             
-            charges.sort((a, b) => new Date(b.date) - new Date(a.date));
-            saveData();
+            // Save to Supabase
+            if (newCharges.length > 0) {
+                const { data, error } = await supabase
+                    .from('charges')
+                    .insert(newCharges)
+                    .select();
+                
+                if (error) {
+                    console.error('Error saving simulation data:', error);
+                } else {
+                    charges = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    console.log(`✅ Generated ${charges.length} demo charges`);
+                }
+            }
         }
 
         // Update all displays
@@ -772,7 +846,7 @@
             const monthlyData = {};
             
             paymentHistory.forEach(payment => {
-                const date = new Date(payment.date);
+                const date = new Date(payment.payment_date || payment.date);
                 const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
                 
                 if (!monthlyData[monthKey]) {
@@ -785,8 +859,8 @@
                 }
                 
                 monthlyData[monthKey].count++;
-                monthlyData[monthKey].totalKwh += payment.totalKwh;
-                monthlyData[monthKey].totalCost += payment.totalCost;
+                monthlyData[monthKey].totalKwh += payment.total_kwh || payment.totalKwh || 0;
+                monthlyData[monthKey].totalCost += payment.total_cost || payment.totalCost || 0;
             });
             
             // Convert to array and sort by date (newest first)
@@ -903,7 +977,7 @@
         }
 
         // Add manual charge
-        function addManualCharge() {
+        async function addManualCharge() {
             const kwh = prompt('Verbrauch in kWh eingeben:');
             if (!kwh || isNaN(kwh) || parseFloat(kwh) <= 0) {
                 return;
@@ -926,19 +1000,32 @@
             const tariff = getTariff(chargeDate);
             const tariffName = tariff.type === 'high' ? 'Hochtarif (Tag)' : 'Niedertarif (Nacht)';
             
-            charges.unshift({
+            const newCharge = {
+                installation_id: INSTALLATION_ID,
                 date: chargeDate.toISOString(),
                 kwh: parseFloat(kwh),
                 tariff: tariff.type,
                 price: tariff.price
-            });
-            saveData();
-            updateDisplay();
-            alert(`✅ Ladevorgang hinzugefügt!\nTarif: ${tariffName} (${tariff.price.toFixed(4)} CHF/kWh)`);
+            };
+            
+            // Save to Supabase
+            const { data, error } = await supabase
+                .from('charges')
+                .insert([newCharge])
+                .select();
+            
+            if (error) {
+                console.error('Error saving charge:', error);
+                alert('❌ Fehler beim Speichern!');
+            } else {
+                charges.unshift(data[0]);
+                updateDisplay();
+                alert(`✅ Ladevorgang hinzugefügt!\nTarif: ${tariffName} (${tariff.price.toFixed(4)} CHF/kWh)`);
+            }
         }
 
         // Mark as paid (reset billing period)
-        function markAsPaid() {
+        async function markAsPaid() {
             // Get charges since last reset
             let relevantCharges = charges;
             if (settings.lastReset) {
@@ -979,43 +1066,78 @@
                            `Die Zahlung wird in der Gesamtkosten-Übersicht gespeichert.`;
             
             if (confirm(message)) {
-                // Add to payment history
-                paymentHistory.push({
-                    date: new Date().toISOString(),
-                    totalKwh: totalKwh,
-                    totalCost: totalCost,
-                    costPerParty: costPerParty,
-                    chargeCount: relevantCharges.length
-                });
+                const newPayment = {
+                    installation_id: INSTALLATION_ID,
+                    payment_date: new Date().toISOString(),
+                    total_kwh: totalKwh,
+                    total_cost: totalCost,
+                    cost_per_party: costPerParty,
+                    charge_count: relevantCharges.length
+                };
                 
-                // Update last reset date
-                settings.lastReset = new Date().toISOString();
-                saveData();
-                updateDisplay();
-                alert('✅ Kosten als bezahlt markiert und in Gesamtkosten-Übersicht gespeichert!\n\nDer Abrechnungszeitraum wurde zurückgesetzt.');
+                // Save to Supabase
+                const { data, error } = await supabase
+                    .from('payment_history')
+                    .insert([newPayment])
+                    .select();
+                
+                if (error) {
+                    console.error('Error saving payment:', error);
+                    alert('❌ Fehler beim Speichern der Zahlung!');
+                } else {
+                    paymentHistory.unshift(data[0]);
+                    
+                    // Update last reset date
+                    settings.lastReset = new Date().toISOString();
+                    saveData();
+                    updateDisplay();
+                    alert('✅ Kosten als bezahlt markiert und in Gesamtkosten-Übersicht gespeichert!\n\nDer Abrechnungszeitraum wurde zurückgesetzt.');
+                }
             }
         }
 
         // Reset data
-        function resetData() {
+        async function resetData() {
             if (confirm('⚠️ Wirklich alle Daten löschen? Dies löscht auch die Gesamtkosten-Übersicht! Dies kann nicht rückgängig gemacht werden!')) {
-                charges = [];
-                paymentHistory = [];
-                settings.lastReset = null;
-                
-                // If in simulation mode, regenerate demo data
-                if (settings.mode === 'simulation') {
-                    generateSimulationData();
-                    generateDemoPaymentHistory();
-                }
-                
-                saveData();
-                updateDisplay();
-                
-                if (settings.mode === 'simulation') {
-                    alert('✅ Alle Daten wurden zurückgesetzt und neue Demo-Daten generiert!');
-                } else {
-                    alert('✅ Alle Daten wurden gelöscht!');
+                try {
+                    // Delete all charges from Supabase
+                    const { error: chargesError } = await supabase
+                        .from('charges')
+                        .delete()
+                        .eq('installation_id', INSTALLATION_ID);
+                    
+                    if (chargesError) throw chargesError;
+                    
+                    // Delete all payments from Supabase
+                    const { error: paymentsError } = await supabase
+                        .from('payment_history')
+                        .delete()
+                        .eq('installation_id', INSTALLATION_ID);
+                    
+                    if (paymentsError) throw paymentsError;
+                    
+                    // Clear local arrays
+                    charges = [];
+                    paymentHistory = [];
+                    settings.lastReset = null;
+                    
+                    // If in simulation mode, regenerate demo data
+                    if (settings.mode === 'simulation') {
+                        await generateSimulationData();
+                        await generateDemoPaymentHistory();
+                    }
+                    
+                    saveData();
+                    updateDisplay();
+                    
+                    if (settings.mode === 'simulation') {
+                        alert('✅ Alle Daten wurden zurückgesetzt und neue Demo-Daten generiert!');
+                    } else {
+                        alert('✅ Alle Daten wurden gelöscht!');
+                    }
+                } catch (error) {
+                    console.error('Error resetting data:', error);
+                    alert('❌ Fehler beim Löschen der Daten!');
                 }
             }
         }
