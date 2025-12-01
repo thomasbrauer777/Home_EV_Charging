@@ -304,9 +304,9 @@
 
             <div style="margin-top: 20px;">
                 <button onclick="saveSettings()">💾 Einstellungen speichern</button>
-                <button class="secondary" onclick="addManualCharge()">➕ Ladevorgang manuell hinzufügen</button>
-                <button class="secondary" onclick="markAsPaid()">✅ Als bezahlt markieren</button>
-                <button class="danger" onclick="resetData()">🗑️ Alle Daten zurücksetzen</button>
+                <button class="secondary" onclick="addManualCharge().catch(e => console.error(e))">➕ Ladevorgang manuell hinzufügen</button>
+                <button class="secondary" onclick="markAsPaid().catch(e => console.error(e))">✅ Als bezahlt markieren</button>
+                <button class="danger" onclick="resetData().catch(e => console.error(e))">🗑️ Alle Daten zurücksetzen</button>
             </div>
 
             <div class="info-box">
@@ -484,12 +484,12 @@
         // SUPABASE KONFIGURATION
         // ============================================
         // TODO: Ersetze diese Werte mit deinen echten Supabase Credentials!
-        const SUPABASE_URL = 'https://fgvjxgcgbdzuewukxedo.supabase.co'
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZndmp4Z2NnYmR6dWV3dWt4ZWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MTE3MTksImV4cCI6MjA3OTk4NzcxOX0.DhWTfgz9nfpt1OHbUJiETWkIwVU4lk6FweEHZl0stDg'
+        const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co'
+        const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY'
         
         // TODO: Erstelle eine einzigartige ID für diese Installation
         // z.B. 'braeuer-odermatt-staeheli-bremgarten'
-        const INSTALLATION_ID = 'braeuer-odermatt-staeheli-arbon'
+        const INSTALLATION_ID = 'demo-installation-1'
         
         // Supabase Client importieren (CDN)
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -947,7 +947,7 @@
         }
 
         // Save settings
-        function saveSettings() {
+        async function saveSettings() {
             settings.mode = document.getElementById('modeSelect').value;
             settings.priceHigh = parseFloat(document.getElementById('priceHighInput').value);
             settings.priceLow = parseFloat(document.getElementById('priceLowInput').value);
