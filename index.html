@@ -24,7 +24,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -32,14 +32,14 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .header h1 {
-            color: #333;
+            color: #667eea;
+            font-size: 2.5em;
             margin-bottom: 10px;
-            font-size: 2em;
         }
 
         .mode-badge {
@@ -52,13 +52,27 @@
         }
 
         .mode-simulation {
-            background: #ffd700;
-            color: #333;
+            background: #fef3c7;
+            color: #92400e;
         }
 
         .mode-live {
-            background: #10b981;
-            color: white;
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
         }
 
         .grid {
@@ -67,30 +81,20 @@
             gap: 20px;
             margin-bottom: 20px;
         }
-        
+
         .grid-single {
             display: block;
             margin-bottom: 20px;
         }
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
-        }
-
-        .card h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .stat {
-            margin: 15px 0;
+            margin-bottom: 20px;
         }
 
         .stat-label {
@@ -100,78 +104,42 @@
         }
 
         .stat-value {
-            font-size: 2em;
+            font-size: 2.5em;
             font-weight: bold;
             color: #667eea;
         }
 
         .stat-unit {
-            font-size: 0.6em;
+            font-size: 0.5em;
             color: #999;
             margin-left: 5px;
-        }
-
-        .controls {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
-        }
-
-        .control-group {
-            margin-bottom: 20px;
-        }
-
-        .control-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-        }
-
-        input[type="number"],
-        input[type="text"],
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-
-        input[type="number"]:focus,
-        input[type="text"]:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
         }
 
         button {
             background: #667eea;
             color: white;
-            padding: 12px 24px;
             border: none;
+            padding: 12px 24px;
             border-radius: 8px;
             font-size: 1em;
-            font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
             margin-right: 10px;
-            margin-top: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
         }
 
         button:hover {
             background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
         button.secondary {
-            background: #64748b;
+            background: #10b981;
         }
 
         button.secondary:hover {
-            background: #475569;
+            background: #059669;
         }
 
         button.danger {
@@ -182,27 +150,65 @@
             background: #dc2626;
         }
 
+        .btn-primary {
+            background: #667eea;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+
         .history-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        .history-table th,
-        .history-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
+            margin-top: 20px;
         }
 
         .history-table th {
-            background: #f8f9fa;
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
             font-weight: 600;
-            color: #333;
+        }
+
+        .history-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
         }
 
         .history-table tr:hover {
             background: #f8f9fa;
+        }
+
+        .tariff-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .tariff-high {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tariff-low {
+            background: #dbeafe;
+            color: #1e40af;
         }
 
         .chart-container {
@@ -219,90 +225,69 @@
 
         .chart-bar {
             flex: 1;
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 4px 4px 0 0;
             min-height: 5px;
-            transition: height 0.3s;
             position: relative;
-        }
-
-        .chart-bar:hover {
-            background: #5568d3;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
         }
 
         .chart-label {
             position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: -20px;
             font-size: 0.8em;
             color: #666;
-            white-space: nowrap;
         }
 
         .info-box {
-            background: #e0e7ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
+            background: #f0f4ff;
+            padding: 20px;
             border-radius: 8px;
             margin-top: 20px;
+            border-left: 4px solid #667eea;
         }
 
         .info-box h3 {
-            color: #333;
-            margin-bottom: 8px;
+            color: #667eea;
+            margin-bottom: 10px;
         }
 
         .info-box p {
             color: #666;
             line-height: 1.6;
         }
-
-        @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 1.5em;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚡ E-Auto Ladekosten - Gemeinsame Abrechnung</h1>
-            <span class="mode-badge" id="modeBadge">🔄 Simulationsmodus</span>
-            <p style="margin-top: 15px; color: #666;">Kostenaufteilung auf 3 Parteien: Familie Bräuer, Familie Odermatt & Familie Stäheli</p>
+            <h1>⚡ E-Auto Ladekosten Tracker</h1>
+            <p style="color: #666;">Transparente Abrechnung für Familie Bräuer, Odermatt & Stäheli</p>
+            <div id="modeBadge" class="mode-badge mode-simulation">🎮 Simulationsmodus</div>
         </div>
 
-        <div class="controls">
-            <h2 style="margin-bottom: 20px; color: #333;">⚙️ Einstellungen</h2>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                <div class="control-group">
-                    <label>Modus</label>
+        <div class="card">
+            <h2>⚙️ Einstellungen</h2>
+            <div style="display: grid; gap: 15px;">
+                <div>
+                    <label>Modus:</label>
                     <select id="modeSelect">
-                        <option value="simulation">Simulation (Demo)</option>
-                        <option value="live">Live (Shelly verbunden)</option>
+                        <option value="simulation">🎮 Simulation (Demo-Daten)</option>
+                        <option value="live">⚡ Live (Shelly 3EM)</option>
                     </select>
                 </div>
-
-                <div class="control-group">
-                    <label>Hochtarif - Tag (CHF/kWh)</label>
-                    <input type="number" id="priceHighInput" value="0.1668" step="0.0001" min="0">
-                    <small style="color: #666; font-size: 0.85em;">Energie + Netz + Abgaben (7-22 Uhr)</small>
+                <div>
+                    <label>Hochtarif (Tag, 7-22 Uhr) CHF/kWh:</label>
+                    <input type="number" id="priceHighInput" step="0.0001" value="0.1668">
                 </div>
-
-                <div class="control-group">
-                    <label>Niedertarif - Nacht (CHF/kWh)</label>
-                    <input type="number" id="priceLowInput" value="0.1606" step="0.0001" min="0">
-                    <small style="color: #666; font-size: 0.85em;">Energie + Netz + Abgaben (22-7 Uhr)</small>
+                <div>
+                    <label>Niedertarif (Nacht, 22-7 Uhr) CHF/kWh:</label>
+                    <input type="number" id="priceLowInput" step="0.0001" value="0.1606">
                 </div>
-
-                <div class="control-group" id="shellyIpGroup" style="display: none;">
-                    <label>Shelly IP-Adresse</label>
+                <div id="shellySettings" style="display: none;">
+                    <label>Shelly 3EM IP-Adresse:</label>
                     <input type="text" id="shellyIp" placeholder="192.168.1.100">
                 </div>
             </div>
@@ -318,11 +303,7 @@
                 <h3>ℹ️ Wie funktioniert das?</h3>
                 <p><strong>Simulationsmodus:</strong> Generiert automatisch realistische Ladedaten zum Testen. Perfekt zum Ausprobieren!<br>
                 <strong>Live-Modus:</strong> Verbindet sich mit deinem Shelly 3EM und zeigt echte Verbrauchsdaten an.<br>
-                <strong>Stromtarife (CLASSIC):</strong> Das System verwendet automatisch den richtigen Tarif basierend auf der Ladezeit:<br>
-                • <strong>Hochtarif (Tag)</strong>: 7-22 Uhr → 16.68 Rp./kWh<br>
-                • <strong>Niedertarif (Nacht)</strong>: 22-7 Uhr → 16.06 Rp./kWh<br>
-                <strong>Kostenaufteilung:</strong> Die Gesamtkosten werden automatisch durch 3 geteilt (Familie Bräuer, Familie Odermatt, Familie Stäheli).<br>
-                <strong>Gesamtkosten-Übersicht:</strong> Wenn ihr "Als bezahlt markieren" klickt, werden die Kosten in die Monatsübersicht übertragen. So kann Familie Bräuer genau sehen, wie viel sie pro Monat für Ladekosten ausgegeben hat!</p>
+                <strong>Als bezahlt markieren:</strong> Speichert die Kosten in der Monatsübersicht und setzt den Abrechnungszeitraum zurück.</p>
             </div>
         </div>
 
@@ -382,50 +363,27 @@
             </div>
         </div>
 
-        <div class="grid">
-            <div class="card">
-                <h2>⚡ Letzter Ladevorgang</h2>
-                <div class="stat">
-                    <div class="stat-label">Geladen</div>
-                    <div class="stat-value" id="lastKwh">-<span class="stat-unit">kWh</span></div>
+        <div class="card">
+            <h2>📈 Letzter Ladevorgang & Durchschnitt</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div>
+                    <div style="color: #666; margin-bottom: 10px;">Letzter Ladevorgang:</div>
+                    <div id="lastCharge" style="font-size: 1.2em; font-weight: 600; color: #667eea;">-</div>
                 </div>
-                <div class="stat">
-                    <div class="stat-label">Kosten</div>
-                    <div class="stat-value" id="lastCost">-<span class="stat-unit">CHF</span></div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Datum</div>
-                    <div style="color: #666; margin-top: 5px; font-size: 1.1em;" id="lastDate">-</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>💰 Durchschnitt</h2>
-                <div class="stat">
-                    <div class="stat-label">Pro Ladevorgang</div>
-                    <div class="stat-value" id="avgKwh">-<span class="stat-unit">kWh</span></div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Kosten pro Ladung</div>
-                    <div class="stat-value" id="avgCost">-<span class="stat-unit">CHF</span></div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>📅 Letzter Reset</h2>
-                <div class="stat">
-                    <div class="stat-label">Datum</div>
-                    <div style="color: #666; margin-top: 5px; font-size: 1.1em;" id="lastResetDate">Noch nie</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Tage seit Reset</div>
-                    <div class="stat-value" id="daysSinceReset">-</div>
+                <div>
+                    <div style="color: #666; margin-bottom: 10px;">Durchschnitt pro Ladung:</div>
+                    <div id="avgCharge" style="font-size: 1.2em; font-weight: 600; color: #667eea;">-</div>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h2>📈 Verbrauch letzte 7 Tage</h2>
+            <h2>📅 Letzter Reset</h2>
+            <div id="lastReset" style="font-size: 1.1em; color: #666;">Noch nie zurückgesetzt</div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Verbrauch letzte 7 Tage</h2>
             <div class="chart-container" id="chartContainer"></div>
         </div>
 
@@ -463,135 +421,195 @@
         </div>
 
         <div class="card">
-            <h2>📝 Ladevorgänge Historie</h2>
+            <h2>📋 Ladevorgänge Historie</h2>
             <table class="history-table">
                 <thead>
                     <tr>
-                        <th>Datum</th>
-                        <th>Uhrzeit</th>
-                        <th>Tarif</th>
+                        <th>Datum & Zeit</th>
                         <th>Verbrauch (kWh)</th>
-                        <th>Kosten (CHF)</th>
-                        <th>Pro Familie (CHF)</th>
+                        <th>Tarif</th>
+                        <th>Kosten</th>
                     </tr>
                 </thead>
-                <tbody id="historyTable">
+                <tbody id="chargesTable">
                     <tr>
-                        <td colspan="6" style="text-align: center; color: #999;">Keine Ladevorgänge vorhanden</td>
+                        <td colspan="4" style="text-align: center; color: #999;">Keine Ladevorgänge</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <script type="module">
+    <!-- Supabase Client Library -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <script>
         // ============================================
         // SUPABASE KONFIGURATION
         // ============================================
-        // TODO: Ersetze diese Werte mit deinen echten Supabase Credentials!
-        const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co'
-        const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY'
+        const SUPABASE_URL = 'https://fgvjxgcgbdzuewukxedo.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZndmp4Z2NnYmR6dWV3dWt4ZWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MTE3MTksImV4cCI6MjA3OTk4NzcxOX0.DhWTfgz9nfpt1OHbUJiETWkIwVU4lk6FweEHZl0stDg'
+        const INSTALLATION_ID = 'braeuer-odermatt-staeheli-bremgarten'
         
-        // TODO: Erstelle eine einzigartige ID für diese Installation
-        // z.B. 'braeuer-odermatt-staeheli-bremgarten'
-        const INSTALLATION_ID = 'demo-installation-1'
-        
-        // Supabase Client importieren (CDN)
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-        
-        // Supabase Client initialisieren
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-        
+        // Initialize Supabase
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
         console.log('✅ Supabase connected:', SUPABASE_URL)
         
         // ============================================
         // DATA STORAGE
         // ============================================
-        let charges = [];
-        let paymentHistory = []; // Store all past payments
+        let charges = []
+        let paymentHistory = []
         let settings = {
             mode: 'simulation',
-            priceHigh: 0.1668, // Hochtarif (Tag): 7.17 + 6.17 + 3.34 Rp./kWh
-            priceLow: 0.1606,  // Niedertarif (Nacht): 6.42 + 6.30 + 3.34 Rp./kWh
+            priceHigh: 0.1668,
+            priceLow: 0.1606,
             shellyIp: '',
             lastReset: null
-        };
+        }
+
+        // Get tariff based on time
+        function getTariff(date) {
+            const hour = new Date(date).getHours()
+            if (hour >= 7 && hour < 22) {
+                return { type: 'high', price: settings.priceHigh }
+            } else {
+                return { type: 'low', price: settings.priceLow }
+            }
+        }
 
         // Load data from Supabase
         async function loadData() {
             try {
-                // Load settings from localStorage (still local for UI preferences)
-                const savedSettings = localStorage.getItem('evSettings');
+                // Load settings from localStorage
+                const savedSettings = localStorage.getItem('evSettings')
                 if (savedSettings) {
-                    const parsed = JSON.parse(savedSettings);
-                    settings = { ...settings, ...parsed };
-                    document.getElementById('modeSelect').value = settings.mode;
-                    document.getElementById('priceHighInput').value = settings.priceHigh || 0.1668;
-                    document.getElementById('priceLowInput').value = settings.priceLow || 0.1606;
-                    document.getElementById('shellyIp').value = settings.shellyIp || '';
-                    updateModeDisplay();
+                    const parsed = JSON.parse(savedSettings)
+                    settings = { ...settings, ...parsed }
+                    document.getElementById('modeSelect').value = settings.mode
+                    document.getElementById('priceHighInput').value = settings.priceHigh || 0.1668
+                    document.getElementById('priceLowInput').value = settings.priceLow || 0.1606
+                    document.getElementById('shellyIp').value = settings.shellyIp || ''
+                    updateModeDisplay()
                 }
                 
                 // Load charges from Supabase
-                const { data: chargesData, error: chargesError } = await supabase
+                const { data: chargesData, error: chargesError } = await supabaseClient
                     .from('charges')
                     .select('*')
                     .eq('installation_id', INSTALLATION_ID)
-                    .order('date', { ascending: false });
+                    .order('date', { ascending: false })
                 
                 if (chargesError) {
-                    console.error('Error loading charges:', chargesError);
+                    console.error('Error loading charges:', chargesError)
                 } else {
-                    charges = chargesData || [];
-                    console.log(`Loaded ${charges.length} charges from Supabase`);
+                    charges = chargesData || []
+                    console.log(`Loaded ${charges.length} charges from Supabase`)
                 }
                 
                 // Load payment history from Supabase
-                const { data: paymentsData, error: paymentsError } = await supabase
+                const { data: paymentsData, error: paymentsError } = await supabaseClient
                     .from('payment_history')
                     .select('*')
                     .eq('installation_id', INSTALLATION_ID)
-                    .order('payment_date', { ascending: false });
+                    .order('payment_date', { ascending: false })
                 
                 if (paymentsError) {
-                    console.error('Error loading payments:', paymentsError);
+                    console.error('Error loading payments:', paymentsError)
                 } else {
-                    paymentHistory = paymentsData || [];
-                    console.log(`Loaded ${paymentHistory.length} payments from Supabase`);
+                    paymentHistory = paymentsData || []
+                    console.log(`Loaded ${paymentHistory.length} payments from Supabase`)
                 }
                 
                 // If in simulation mode and no data, generate some
                 if (settings.mode === 'simulation' && charges.length === 0) {
-                    await generateSimulationData();
-                    await generateDemoPaymentHistory();
+                    await generateSimulationData()
+                    await generateDemoPaymentHistory()
                 }
                 
-                updateDisplay();
+                updateDisplay()
             } catch (error) {
-                console.error('Error in loadData:', error);
-                alert('Fehler beim Laden der Daten. Bitte überprüfe deine Supabase-Konfiguration.');
+                console.error('Error in loadData:', error)
+                alert('Fehler beim Laden der Daten. Bitte überprüfe deine Supabase-Konfiguration.')
             }
         }
-        
+
+        // Save settings
+        function saveSettings() {
+            settings.mode = document.getElementById('modeSelect').value
+            settings.priceHigh = parseFloat(document.getElementById('priceHighInput').value)
+            settings.priceLow = parseFloat(document.getElementById('priceLowInput').value)
+            settings.shellyIp = document.getElementById('shellyIp').value
+            
+            localStorage.setItem('evSettings', JSON.stringify(settings))
+            updateModeDisplay()
+            updateDisplay()
+            
+            alert('✅ Einstellungen gespeichert!')
+        }
+
+        // Generate simulation data
+        async function generateSimulationData() {
+            const today = new Date()
+            const newCharges = []
+            
+            for (let daysAgo = 6; daysAgo >= 0; daysAgo--) {
+                const chargesPerDay = Math.floor(Math.random() * 3)
+                
+                for (let i = 0; i < chargesPerDay; i++) {
+                    const date = new Date(today)
+                    date.setDate(date.getDate() - daysAgo)
+                    
+                    if (i === 0) {
+                        date.setHours(18 + Math.floor(Math.random() * 6))
+                    } else {
+                        date.setHours(7 + Math.floor(Math.random() * 6))
+                    }
+                    date.setMinutes(Math.floor(Math.random() * 60))
+                    
+                    const kwh = (Math.random() * 10 + 10).toFixed(2)
+                    const tariff = getTariff(date)
+                    
+                    newCharges.push({
+                        installation_id: INSTALLATION_ID,
+                        date: date.toISOString(),
+                        kwh: parseFloat(kwh),
+                        tariff: tariff.type,
+                        price: tariff.price
+                    })
+                }
+            }
+            
+            if (newCharges.length > 0) {
+                const { data, error } = await supabaseClient
+                    .from('charges')
+                    .insert(newCharges)
+                    .select()
+                
+                if (error) {
+                    console.error('Error saving simulation data:', error)
+                } else {
+                    charges = data.sort((a, b) => new Date(b.date) - new Date(a.date))
+                    console.log(`✅ Generated ${charges.length} demo charges`)
+                }
+            }
+        }
+
         // Generate demo payment history
         async function generateDemoPaymentHistory() {
-            const now = new Date();
-            const newPayments = [];
+            const now = new Date()
+            const newPayments = []
             
-            // Add 2-3 past payments for demo
-            const numPayments = 3;
-            
-            for (let i = 0; i < numPayments; i++) {
-                const monthsAgo = i + 1;
-                const paymentDate = new Date(now);
-                paymentDate.setMonth(paymentDate.getMonth() - monthsAgo);
+            for (let i = 0; i < 3; i++) {
+                const monthsAgo = i + 1
+                const paymentDate = new Date(now)
+                paymentDate.setMonth(paymentDate.getMonth() - monthsAgo)
                 
-                // Random charges for that month
-                const numCharges = Math.floor(Math.random() * 10) + 8; // 8-17 charges
-                const totalKwh = (Math.random() * 100 + 150).toFixed(2); // 150-250 kWh per month
-                const avgPrice = (settings.priceHigh + settings.priceLow) / 2;
-                const totalCost = parseFloat(totalKwh) * avgPrice;
-                const costPerParty = totalCost / 3;
+                const numCharges = Math.floor(Math.random() * 10) + 8
+                const totalKwh = (Math.random() * 100 + 150).toFixed(2)
+                const avgPrice = (settings.priceHigh + settings.priceLow) / 2
+                const totalCost = parseFloat(totalKwh) * avgPrice
+                const costPerParty = totalCost / 3
                 
                 newPayments.push({
                     installation_id: INSTALLATION_ID,
@@ -600,410 +618,47 @@
                     total_cost: totalCost,
                     cost_per_party: costPerParty,
                     charge_count: numCharges
-                });
+                })
             }
             
-            // Save to Supabase
             if (newPayments.length > 0) {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('payment_history')
                     .insert(newPayments)
-                    .select();
+                    .select()
                 
                 if (error) {
-                    console.error('Error saving demo payments:', error);
+                    console.error('Error saving demo payments:', error)
                 } else {
-                    paymentHistory = data.sort((a, b) => new Date(b.payment_date) - new Date(a.payment_date));
-                    console.log(`✅ Generated ${paymentHistory.length} demo payments`);
+                    paymentHistory = data.sort((a, b) => new Date(b.payment_date) - new Date(a.payment_date))
+                    console.log(`✅ Generated ${paymentHistory.length} demo payments`)
                 }
-            }
-        }
-
-        // Save data to Supabase
-        async function saveData() {
-            // Settings still saved locally (UI preferences)
-            localStorage.setItem('evSettings', JSON.stringify(settings));
-            
-            // Charges and payments are saved individually when created/updated
-            // No need to bulk save here anymore
-        }
-
-        // Determine tariff based on time (7-22 = high, 22-7 = low)
-        function getTariff(date) {
-            const hour = date.getHours();
-            if (hour >= 7 && hour < 22) {
-                return { type: 'high', price: settings.priceHigh };
-            } else {
-                return { type: 'low', price: settings.priceLow };
-            }
-        }
-
-        // Generate simulation data
-        async function generateSimulationData() {
-            const today = new Date();
-            const newCharges = [];
-            
-            // Generate charges for the last 7 days with max 2 per day
-            for (let daysAgo = 6; daysAgo >= 0; daysAgo--) {
-                // Random 0-2 charges per day
-                const chargesPerDay = Math.floor(Math.random() * 3); // 0, 1, or 2
-                
-                for (let i = 0; i < chargesPerDay; i++) {
-                    const date = new Date(today);
-                    date.setDate(date.getDate() - daysAgo);
-                    
-                    // Spread charges throughout the day
-                    if (i === 0) {
-                        // First charge: evening (18-23 Uhr)
-                        date.setHours(18 + Math.floor(Math.random() * 6));
-                    } else {
-                        // Second charge: morning (7-12 Uhr)
-                        date.setHours(7 + Math.floor(Math.random() * 6));
-                    }
-                    date.setMinutes(Math.floor(Math.random() * 60));
-                    
-                    // Realistic charge amounts for MG HS PHEV (15-21 kWh battery)
-                    const kwh = (Math.random() * 10 + 10).toFixed(2); // 10-20 kWh
-                    const tariff = getTariff(date);
-                    
-                    newCharges.push({
-                        installation_id: INSTALLATION_ID,
-                        date: date.toISOString(),
-                        kwh: parseFloat(kwh),
-                        tariff: tariff.type,
-                        price: tariff.price
-                    });
-                }
-            }
-            
-            // Save to Supabase
-            if (newCharges.length > 0) {
-                const { data, error } = await supabase
-                    .from('charges')
-                    .insert(newCharges)
-                    .select();
-                
-                if (error) {
-                    console.error('Error saving simulation data:', error);
-                } else {
-                    charges = data.sort((a, b) => new Date(b.date) - new Date(a.date));
-                    console.log(`✅ Generated ${charges.length} demo charges`);
-                }
-            }
-        }
-
-        // Update all displays
-        function updateDisplay() {
-            updateStats();
-            updateHistory();
-            updateChart();
-            updateMonthlyStats();
-        }
-
-        // Update statistics
-        function updateStats() {
-            const now = new Date();
-            
-            // Get charges since last reset
-            let relevantCharges = charges;
-            if (settings.lastReset) {
-                const resetDate = new Date(settings.lastReset);
-                relevantCharges = charges.filter(c => new Date(c.date) > resetDate);
-            }
-            
-            const totalKwh = relevantCharges.reduce((sum, c) => sum + c.kwh, 0);
-            
-            // Calculate total cost considering tariffs
-            const totalCost = relevantCharges.reduce((sum, c) => {
-                // Handle old data without tariff info
-                let price = c.price;
-                if (!c.tariff) {
-                    const date = new Date(c.date);
-                    const tariff = getTariff(date);
-                    price = tariff.price;
-                }
-                return sum + (c.kwh * price);
-            }, 0);
-            
-            const costPerParty = totalCost / 3;
-            
-            document.getElementById('totalKwh').innerHTML = totalKwh.toFixed(2) + '<span class="stat-unit">kWh</span>';
-            document.getElementById('totalCost').innerHTML = totalCost.toFixed(2) + '<span class="stat-unit">CHF</span>';
-            document.getElementById('chargeCount').textContent = relevantCharges.length;
-            
-            // Update party costs
-            document.getElementById('brauerCost').innerHTML = costPerParty.toFixed(2) + '<span class="stat-unit">CHF</span>';
-            document.getElementById('odermattCost').innerHTML = costPerParty.toFixed(2) + '<span class="stat-unit">CHF</span>';
-            document.getElementById('staeheliCost').innerHTML = costPerParty.toFixed(2) + '<span class="stat-unit">CHF</span>';
-            
-            // Update status
-            const brauerStatus = document.getElementById('brauerStatus');
-            const odermattStatus = document.getElementById('odermattStatus');
-            const staeheliStatus = document.getElementById('staeheliStatus');
-            
-            if (costPerParty > 0) {
-                brauerStatus.textContent = 'Ausstehend';
-                brauerStatus.style.color = '#ef4444';
-                odermattStatus.textContent = 'Ausstehend';
-                odermattStatus.style.color = '#ef4444';
-                staeheliStatus.textContent = 'Ausstehend';
-                staeheliStatus.style.color = '#ef4444';
-            } else {
-                brauerStatus.textContent = 'Bezahlt ✓';
-                brauerStatus.style.color = '#10b981';
-                odermattStatus.textContent = 'Bezahlt ✓';
-                odermattStatus.style.color = '#10b981';
-                staeheliStatus.textContent = 'Bezahlt ✓';
-                staeheliStatus.style.color = '#10b981';
-            }
-            
-            // Update last reset info
-            if (settings.lastReset) {
-                const resetDate = new Date(settings.lastReset);
-                document.getElementById('lastResetDate').textContent = resetDate.toLocaleDateString('de-CH');
-                
-                const daysDiff = Math.floor((now - resetDate) / (1000 * 60 * 60 * 24));
-                document.getElementById('daysSinceReset').textContent = daysDiff;
-            } else {
-                document.getElementById('lastResetDate').textContent = 'Noch nie';
-                document.getElementById('daysSinceReset').textContent = '-';
-            }
-            
-            if (relevantCharges.length > 0) {
-                const avgKwh = totalKwh / relevantCharges.length;
-                const avgCost = totalCost / relevantCharges.length;
-                
-                document.getElementById('avgKwh').innerHTML = avgKwh.toFixed(2) + '<span class="stat-unit">kWh</span>';
-                document.getElementById('avgCost').innerHTML = avgCost.toFixed(2) + '<span class="stat-unit">CHF</span>';
-                
-                const last = relevantCharges[0];
-                let lastPrice = last.price;
-                if (!last.tariff) {
-                    const date = new Date(last.date);
-                    const tariff = getTariff(date);
-                    lastPrice = tariff.price;
-                }
-                
-                document.getElementById('lastKwh').innerHTML = last.kwh.toFixed(2) + '<span class="stat-unit">kWh</span>';
-                document.getElementById('lastCost').innerHTML = (last.kwh * lastPrice).toFixed(2) + '<span class="stat-unit">CHF</span>';
-                document.getElementById('lastDate').textContent = new Date(last.date).toLocaleString('de-CH');
-            } else {
-                document.getElementById('avgKwh').innerHTML = '-<span class="stat-unit">kWh</span>';
-                document.getElementById('avgCost').innerHTML = '-<span class="stat-unit">CHF</span>';
-                document.getElementById('lastKwh').innerHTML = '-<span class="stat-unit">kWh</span>';
-                document.getElementById('lastCost').innerHTML = '-<span class="stat-unit">CHF</span>';
-                document.getElementById('lastDate').textContent = '-';
-            }
-        }
-
-        // Update history table
-        function updateHistory() {
-            const tbody = document.getElementById('historyTable');
-            
-            if (charges.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Keine Ladevorgänge vorhanden</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = charges.map(c => {
-                const date = new Date(c.date);
-                
-                // Handle old data without tariff info
-                let tariffInfo = c.tariff || 'high';
-                let price = c.price;
-                if (!c.tariff) {
-                    const tariff = getTariff(date);
-                    tariffInfo = tariff.type;
-                    price = tariff.price;
-                }
-                
-                const tariffBadge = tariffInfo === 'high' 
-                    ? '<span style="background: #fbbf24; color: #78350f; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 600;">HT</span>'
-                    : '<span style="background: #60a5fa; color: #1e3a8a; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 600;">NT</span>';
-                
-                const cost = (c.kwh * price);
-                const costPerParty = cost / 3;
-                return `
-                    <tr>
-                        <td>${date.toLocaleDateString('de-CH')}</td>
-                        <td>${date.toLocaleTimeString('de-CH', {hour: '2-digit', minute: '2-digit'})}</td>
-                        <td>${tariffBadge}</td>
-                        <td>${c.kwh.toFixed(2)}</td>
-                        <td>${cost.toFixed(2)}</td>
-                        <td>${costPerParty.toFixed(2)}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // Update monthly statistics
-        function updateMonthlyStats() {
-            const tbody = document.getElementById('monthlyStatsTable');
-            
-            if (paymentHistory.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Noch keine Zahlungen erfasst</td></tr>';
-                document.getElementById('totalAllKwh').textContent = '0 kWh';
-                document.getElementById('totalAllCost').textContent = '0.00 CHF';
-                return;
-            }
-            
-            // Group payments by month
-            const monthlyData = {};
-            
-            paymentHistory.forEach(payment => {
-                const date = new Date(payment.payment_date || payment.date);
-                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                
-                if (!monthlyData[monthKey]) {
-                    monthlyData[monthKey] = {
-                        date: date,
-                        count: 0,
-                        totalKwh: 0,
-                        totalCost: 0
-                    };
-                }
-                
-                monthlyData[monthKey].count++;
-                monthlyData[monthKey].totalKwh += payment.total_kwh || payment.totalKwh || 0;
-                monthlyData[monthKey].totalCost += payment.total_cost || payment.totalCost || 0;
-            });
-            
-            // Convert to array and sort by date (newest first)
-            const sortedMonths = Object.entries(monthlyData)
-                .sort((a, b) => b[1].date - a[1].date);
-            
-            // Calculate totals
-            let totalKwh = 0;
-            let totalAllCost = 0;
-            
-            // Generate table rows
-            tbody.innerHTML = sortedMonths.map(([monthKey, data]) => {
-                totalKwh += data.totalKwh;
-                totalAllCost += data.totalCost;
-                
-                const monthName = data.date.toLocaleDateString('de-CH', { year: 'numeric', month: 'long' });
-                
-                return `
-                    <tr>
-                        <td>${monthName}</td>
-                        <td>${data.count}</td>
-                        <td>${data.totalKwh.toFixed(2)}</td>
-                        <td><strong>${data.totalCost.toFixed(2)}</strong></td>
-                    </tr>
-                `;
-            }).join('');
-            
-            // Update totals
-            document.getElementById('totalAllKwh').textContent = totalKwh.toFixed(2) + ' kWh';
-            document.getElementById('totalAllCost').textContent = totalAllCost.toFixed(2) + ' CHF';
-        }
-
-        // Update chart
-        function updateChart() {
-            const container = document.getElementById('chartContainer');
-            const last7Days = [];
-            const today = new Date();
-            
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(today);
-                date.setDate(date.getDate() - i);
-                date.setHours(0, 0, 0, 0);
-                
-                const dayCharges = charges.filter(c => {
-                    const cd = new Date(c.date);
-                    cd.setHours(0, 0, 0, 0);
-                    return cd.getTime() === date.getTime();
-                });
-                
-                const totalKwh = dayCharges.reduce((sum, c) => sum + c.kwh, 0);
-                
-                // Calculate cost considering tariffs
-                const totalCost = dayCharges.reduce((sum, c) => {
-                    let price = c.price;
-                    if (!c.tariff) {
-                        const tariff = getTariff(new Date(c.date));
-                        price = tariff.price;
-                    }
-                    return sum + (c.kwh * price);
-                }, 0);
-                
-                last7Days.push({
-                    date: date,
-                    kwh: totalKwh,
-                    cost: totalCost
-                });
-            }
-            
-            const maxKwh = Math.max(...last7Days.map(d => d.kwh), 1);
-            
-            container.innerHTML = last7Days.map(d => {
-                const height = (d.kwh / maxKwh) * 100;
-                const day = d.date.toLocaleDateString('de-DE', {weekday: 'short'});
-                const kwhDisplay = d.kwh > 0 ? d.kwh.toFixed(1) + ' kWh' : '-';
-                const costDisplay = d.cost > 0 ? d.cost.toFixed(2) + ' CHF' : '-';
-                return `
-                    <div class="chart-bar" style="height: ${height}%; position: relative;">
-                        <div style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); font-size: 0.75em; font-weight: 600; color: #667eea; white-space: nowrap;">${kwhDisplay}</div>
-                        <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 0.7em; color: #764ba2; white-space: nowrap;">${costDisplay}</div>
-                        <div class="chart-label">${day}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Save settings
-        async function saveSettings() {
-            settings.mode = document.getElementById('modeSelect').value;
-            settings.priceHigh = parseFloat(document.getElementById('priceHighInput').value);
-            settings.priceLow = parseFloat(document.getElementById('priceLowInput').value);
-            settings.shellyIp = document.getElementById('shellyIp').value;
-            
-            saveData();
-            updateModeDisplay();
-            updateDisplay();
-            
-            alert('✅ Einstellungen gespeichert!');
-        }
-
-        // Update mode display
-        function updateModeDisplay() {
-            const badge = document.getElementById('modeBadge');
-            const shellyGroup = document.getElementById('shellyIpGroup');
-            
-            if (settings.mode === 'simulation') {
-                badge.className = 'mode-badge mode-simulation';
-                badge.textContent = '🔄 Simulationsmodus';
-                shellyGroup.style.display = 'none';
-            } else {
-                badge.className = 'mode-badge mode-live';
-                badge.textContent = '🟢 Live-Modus';
-                shellyGroup.style.display = 'block';
             }
         }
 
         // Add manual charge
         async function addManualCharge() {
-            const kwh = prompt('Verbrauch in kWh eingeben:');
+            const kwh = prompt('Verbrauch in kWh eingeben:')
             if (!kwh || isNaN(kwh) || parseFloat(kwh) <= 0) {
-                return;
+                return
             }
             
-            const timeStr = prompt('Uhrzeit eingeben (HH:MM, z.B. 14:30):\n(Leer lassen für aktuelle Zeit)');
-            let chargeDate = new Date();
+            const timeStr = prompt('Uhrzeit eingeben (HH:MM, z.B. 14:30):\n(Leer lassen für aktuelle Zeit)')
+            let chargeDate = new Date()
             
             if (timeStr && timeStr.trim() !== '') {
-                const timeParts = timeStr.split(':');
+                const timeParts = timeStr.split(':')
                 if (timeParts.length === 2) {
-                    const hours = parseInt(timeParts[0]);
-                    const minutes = parseInt(timeParts[1]);
+                    const hours = parseInt(timeParts[0])
+                    const minutes = parseInt(timeParts[1])
                     if (!isNaN(hours) && !isNaN(minutes) && hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60) {
-                        chargeDate.setHours(hours, minutes, 0, 0);
+                        chargeDate.setHours(hours, minutes, 0, 0)
                     }
                 }
             }
             
-            const tariff = getTariff(chargeDate);
-            const tariffName = tariff.type === 'high' ? 'Hochtarif (Tag)' : 'Niedertarif (Nacht)';
+            const tariff = getTariff(chargeDate)
+            const tariffName = tariff.type === 'high' ? 'Hochtarif (Tag)' : 'Niedertarif (Nacht)'
             
             const newCharge = {
                 installation_id: INSTALLATION_ID,
@@ -1011,56 +666,53 @@
                 kwh: parseFloat(kwh),
                 tariff: tariff.type,
                 price: tariff.price
-            };
+            }
             
-            // Save to Supabase
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('charges')
                 .insert([newCharge])
-                .select();
+                .select()
             
             if (error) {
-                console.error('Error saving charge:', error);
-                alert('❌ Fehler beim Speichern!');
+                console.error('Error saving charge:', error)
+                alert('❌ Fehler beim Speichern!')
             } else {
-                charges.unshift(data[0]);
-                updateDisplay();
-                alert(`✅ Ladevorgang hinzugefügt!\nTarif: ${tariffName} (${tariff.price.toFixed(4)} CHF/kWh)`);
+                charges.unshift(data[0])
+                updateDisplay()
+                alert(`✅ Ladevorgang hinzugefügt!\nTarif: ${tariffName} (${tariff.price.toFixed(4)} CHF/kWh)`)
             }
         }
 
-        // Mark as paid (reset billing period)
+        // Mark as paid
         async function markAsPaid() {
-            // Get charges since last reset
-            let relevantCharges = charges;
+            let relevantCharges = charges
             if (settings.lastReset) {
-                const resetDate = new Date(settings.lastReset);
-                relevantCharges = charges.filter(c => new Date(c.date) > resetDate);
+                const resetDate = new Date(settings.lastReset)
+                relevantCharges = charges.filter(c => new Date(c.date) > resetDate)
             }
             
             if (relevantCharges.length === 0) {
-                alert('ℹ️ Es gibt keine ausstehenden Kosten zum Bezahlen.');
-                return;
+                alert('ℹ️ Es gibt keine ausstehenden Kosten zum Bezahlen.')
+                return
             }
             
-            // Calculate total kWh and cost
-            const totalKwh = relevantCharges.reduce((sum, c) => sum + c.kwh, 0);
+            const totalKwh = relevantCharges.reduce((sum, c) => sum + c.kwh, 0)
             
             const totalCost = relevantCharges.reduce((sum, c) => {
-                let price = c.price;
+                let price = c.price
                 if (!c.tariff) {
-                    const date = new Date(c.date);
-                    const tariff = getTariff(date);
-                    price = tariff.price;
+                    const date = new Date(c.date)
+                    const tariff = getTariff(date)
+                    price = tariff.price
                 }
-                return sum + (c.kwh * price);
-            }, 0);
+                return sum + (c.kwh * price)
+            }, 0)
             
-            const costPerParty = totalCost / 3;
+            const costPerParty = totalCost / 3
             
             if (costPerParty === 0) {
-                alert('ℹ️ Es gibt keine ausstehenden Kosten zum Bezahlen.');
-                return;
+                alert('ℹ️ Es gibt keine ausstehenden Kosten zum Bezahlen.')
+                return
             }
             
             const message = `Folgende Beträge als bezahlt markieren?\n\n` +
@@ -1068,7 +720,7 @@
                            `Familie Odermatt: CHF ${costPerParty.toFixed(2)}\n` +
                            `Familie Stäheli: CHF ${costPerParty.toFixed(2)}\n\n` +
                            `Gesamt: CHF ${totalCost.toFixed(2)} (${totalKwh.toFixed(2)} kWh)\n\n` +
-                           `Die Zahlung wird in der Gesamtkosten-Übersicht gespeichert.`;
+                           `Die Zahlung wird in der Gesamtkosten-Übersicht gespeichert.`
             
             if (confirm(message)) {
                 const newPayment = {
@@ -1078,25 +730,22 @@
                     total_cost: totalCost,
                     cost_per_party: costPerParty,
                     charge_count: relevantCharges.length
-                };
+                }
                 
-                // Save to Supabase
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('payment_history')
                     .insert([newPayment])
-                    .select();
+                    .select()
                 
                 if (error) {
-                    console.error('Error saving payment:', error);
-                    alert('❌ Fehler beim Speichern der Zahlung!');
+                    console.error('Error saving payment:', error)
+                    alert('❌ Fehler beim Speichern der Zahlung!')
                 } else {
-                    paymentHistory.unshift(data[0]);
-                    
-                    // Update last reset date
-                    settings.lastReset = new Date().toISOString();
-                    saveData();
-                    updateDisplay();
-                    alert('✅ Kosten als bezahlt markiert und in Gesamtkosten-Übersicht gespeichert!\n\nDer Abrechnungszeitraum wurde zurückgesetzt.');
+                    paymentHistory.unshift(data[0])
+                    settings.lastReset = new Date().toISOString()
+                    localStorage.setItem('evSettings', JSON.stringify(settings))
+                    updateDisplay()
+                    alert('✅ Kosten als bezahlt markiert und in Gesamtkosten-Übersicht gespeichert!\n\nDer Abrechnungszeitraum wurde zurückgesetzt.')
                 }
             }
         }
@@ -1105,67 +754,263 @@
         async function resetData() {
             if (confirm('⚠️ Wirklich alle Daten löschen? Dies löscht auch die Gesamtkosten-Übersicht! Dies kann nicht rückgängig gemacht werden!')) {
                 try {
-                    // Delete all charges from Supabase
-                    const { error: chargesError } = await supabase
+                    const { error: chargesError } = await supabaseClient
                         .from('charges')
                         .delete()
-                        .eq('installation_id', INSTALLATION_ID);
+                        .eq('installation_id', INSTALLATION_ID)
                     
-                    if (chargesError) throw chargesError;
+                    if (chargesError) throw chargesError
                     
-                    // Delete all payments from Supabase
-                    const { error: paymentsError } = await supabase
+                    const { error: paymentsError } = await supabaseClient
                         .from('payment_history')
                         .delete()
-                        .eq('installation_id', INSTALLATION_ID);
+                        .eq('installation_id', INSTALLATION_ID)
                     
-                    if (paymentsError) throw paymentsError;
+                    if (paymentsError) throw paymentsError
                     
-                    // Clear local arrays
-                    charges = [];
-                    paymentHistory = [];
-                    settings.lastReset = null;
+                    charges = []
+                    paymentHistory = []
+                    settings.lastReset = null
                     
-                    // If in simulation mode, regenerate demo data
                     if (settings.mode === 'simulation') {
-                        await generateSimulationData();
-                        await generateDemoPaymentHistory();
+                        await generateSimulationData()
+                        await generateDemoPaymentHistory()
                     }
                     
-                    saveData();
-                    updateDisplay();
+                    localStorage.setItem('evSettings', JSON.stringify(settings))
+                    updateDisplay()
                     
                     if (settings.mode === 'simulation') {
-                        alert('✅ Alle Daten wurden zurückgesetzt und neue Demo-Daten generiert!');
+                        alert('✅ Alle Daten wurden zurückgesetzt und neue Demo-Daten generiert!')
                     } else {
-                        alert('✅ Alle Daten wurden gelöscht!');
+                        alert('✅ Alle Daten wurden gelöscht!')
                     }
                 } catch (error) {
-                    console.error('Error resetting data:', error);
-                    alert('❌ Fehler beim Löschen der Daten!');
+                    console.error('Error resetting data:', error)
+                    alert('❌ Fehler beim Löschen der Daten!')
                 }
             }
         }
 
-        // Auto-refresh in simulation mode (disabled - only updates display)
-        function autoRefresh() {
-            // Just update the display, don't add new charges automatically
-            // User can manually add charges if needed
+        // Update mode display
+        function updateModeDisplay() {
+            const badge = document.getElementById('modeBadge')
+            const shellySettings = document.getElementById('shellySettings')
+            
+            if (settings.mode === 'simulation') {
+                badge.textContent = '🎮 Simulationsmodus'
+                badge.className = 'mode-badge mode-simulation'
+                shellySettings.style.display = 'none'
+            } else {
+                badge.textContent = '⚡ Live-Modus'
+                badge.className = 'mode-badge mode-live'
+                shellySettings.style.display = 'block'
+            }
+        }
+
+        // Update display
+        function updateDisplay() {
+            let relevantCharges = charges
+            if (settings.lastReset) {
+                const resetDate = new Date(settings.lastReset)
+                relevantCharges = charges.filter(c => new Date(c.date) > resetDate)
+            }
+            
+            const totalKwh = relevantCharges.reduce((sum, c) => sum + c.kwh, 0)
+            const totalCost = relevantCharges.reduce((sum, c) => {
+                let price = c.price
+                if (!c.tariff) {
+                    const tariff = getTariff(new Date(c.date))
+                    price = tariff.price
+                }
+                return sum + (c.kwh * price)
+            }, 0)
+            const costPerParty = totalCost / 3
+            
+            document.getElementById('totalKwh').innerHTML = `${totalKwh.toFixed(2)}<span class="stat-unit">kWh</span>`
+            document.getElementById('totalCost').innerHTML = `${totalCost.toFixed(2)}<span class="stat-unit">CHF</span>`
+            document.getElementById('chargeCount').textContent = relevantCharges.length
+            
+            document.getElementById('brauerCost').innerHTML = `${costPerParty.toFixed(2)}<span class="stat-unit">CHF</span>`
+            document.getElementById('odermattCost').innerHTML = `${costPerParty.toFixed(2)}<span class="stat-unit">CHF</span>`
+            document.getElementById('staeheliCost').innerHTML = `${costPerParty.toFixed(2)}<span class="stat-unit">CHF</span>`
+            
+            const statusText = costPerParty > 0 ? 'Ausstehend' : 'Bezahlt'
+            const statusColor = costPerParty > 0 ? '#ef4444' : '#10b981'
+            document.getElementById('brauerStatus').style.color = statusColor
+            document.getElementById('brauerStatus').textContent = statusText
+            document.getElementById('odermattStatus').style.color = statusColor
+            document.getElementById('odermattStatus').textContent = statusText
+            document.getElementById('staeheliStatus').style.color = statusColor
+            document.getElementById('staeheliStatus').textContent = statusText
+            
+            if (charges.length > 0) {
+                const lastCharge = charges[0]
+                const lastDate = new Date(lastCharge.date).toLocaleString('de-CH')
+                document.getElementById('lastCharge').textContent = `${lastCharge.kwh.toFixed(2)} kWh am ${lastDate}`
+                
+                const avgKwh = charges.reduce((sum, c) => sum + c.kwh, 0) / charges.length
+                document.getElementById('avgCharge').textContent = `${avgKwh.toFixed(2)} kWh`
+            } else {
+                document.getElementById('lastCharge').textContent = '-'
+                document.getElementById('avgCharge').textContent = '-'
+            }
+            
+            if (settings.lastReset) {
+                const resetDate = new Date(settings.lastReset)
+                const daysSince = Math.floor((new Date() - resetDate) / (1000 * 60 * 60 * 24))
+                document.getElementById('lastReset').textContent = `${resetDate.toLocaleDateString('de-CH')} (vor ${daysSince} Tagen)`
+            } else {
+                document.getElementById('lastReset').textContent = 'Noch nie zurückgesetzt'
+            }
+            
+            updateChart()
+            updateChargesTable()
+            updateMonthlyStats()
+        }
+
+        // Update chart
+        function updateChart() {
+            const container = document.getElementById('chartContainer')
+            const last7Days = []
+            const today = new Date()
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today)
+                date.setDate(date.getDate() - i)
+                date.setHours(0, 0, 0, 0)
+                
+                const dayCharges = charges.filter(c => {
+                    const cd = new Date(c.date)
+                    cd.setHours(0, 0, 0, 0)
+                    return cd.getTime() === date.getTime()
+                })
+                
+                const totalKwh = dayCharges.reduce((sum, c) => sum + c.kwh, 0)
+                const totalCost = dayCharges.reduce((sum, c) => {
+                    let price = c.price
+                    if (!c.tariff) {
+                        const tariff = getTariff(new Date(c.date))
+                        price = tariff.price
+                    }
+                    return sum + (c.kwh * price)
+                }, 0)
+                
+                last7Days.push({ date, kwh: totalKwh, cost: totalCost })
+            }
+            
+            const maxKwh = Math.max(...last7Days.map(d => d.kwh), 1)
+            
+            container.innerHTML = last7Days.map(d => {
+                const height = (d.kwh / maxKwh) * 100
+                const day = d.date.toLocaleDateString('de-DE', {weekday: 'short'})
+                const kwhDisplay = d.kwh > 0 ? d.kwh.toFixed(1) + ' kWh' : '-'
+                const costDisplay = d.cost > 0 ? d.cost.toFixed(2) + ' CHF' : '-'
+                return `
+                    <div class="chart-bar" style="height: ${height}%; position: relative;">
+                        <div style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); font-size: 0.75em; font-weight: 600; color: #667eea; white-space: nowrap;">${kwhDisplay}</div>
+                        <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 0.7em; color: #764ba2; white-space: nowrap;">${costDisplay}</div>
+                        <div class="chart-label">${day}</div>
+                    </div>
+                `
+            }).join('')
+        }
+
+        // Update charges table
+        function updateChargesTable() {
+            const tbody = document.getElementById('chargesTable')
+            
+            if (charges.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Keine Ladevorgänge</td></tr>'
+                return
+            }
+            
+            tbody.innerHTML = charges.slice(0, 20).map(charge => {
+                const date = new Date(charge.date).toLocaleString('de-CH')
+                const tariffClass = charge.tariff === 'high' ? 'tariff-high' : 'tariff-low'
+                const tariffLabel = charge.tariff === 'high' ? 'HT (Tag)' : 'NT (Nacht)'
+                const cost = (charge.kwh * charge.price).toFixed(2)
+                
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${charge.kwh.toFixed(2)}</td>
+                        <td><span class="tariff-badge ${tariffClass}">${tariffLabel}</span></td>
+                        <td>CHF ${cost}</td>
+                    </tr>
+                `
+            }).join('')
+        }
+
+        // Update monthly statistics
+        function updateMonthlyStats() {
+            const tbody = document.getElementById('monthlyStatsTable')
+            
+            if (paymentHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Noch keine Zahlungen erfasst</td></tr>'
+                document.getElementById('totalAllKwh').textContent = '0 kWh'
+                document.getElementById('totalAllCost').textContent = '0.00 CHF'
+                return
+            }
+            
+            const monthlyData = {}
+            
+            paymentHistory.forEach(payment => {
+                const date = new Date(payment.payment_date || payment.date)
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = {
+                        date: date,
+                        count: 0,
+                        totalKwh: 0,
+                        totalCost: 0
+                    }
+                }
+                
+                monthlyData[monthKey].count++
+                monthlyData[monthKey].totalKwh += payment.total_kwh || payment.totalKwh || 0
+                monthlyData[monthKey].totalCost += payment.total_cost || payment.totalCost || 0
+            })
+            
+            const sortedMonths = Object.entries(monthlyData)
+                .sort((a, b) => b[1].date - a[1].date)
+            
+            let totalKwh = 0
+            let totalAllCost = 0
+            
+            tbody.innerHTML = sortedMonths.map(([monthKey, data]) => {
+                totalKwh += data.totalKwh
+                totalAllCost += data.totalCost
+                
+                const monthName = data.date.toLocaleDateString('de-CH', { year: 'numeric', month: 'long' })
+                
+                return `
+                    <tr>
+                        <td>${monthName}</td>
+                        <td>${data.count}</td>
+                        <td>${data.totalKwh.toFixed(2)}</td>
+                        <td><strong>${data.totalCost.toFixed(2)}</strong></td>
+                    </tr>
+                `
+            }).join('')
+            
+            document.getElementById('totalAllKwh').textContent = totalKwh.toFixed(2) + ' kWh'
+            document.getElementById('totalAllCost').textContent = totalAllCost.toFixed(2) + ' CHF'
         }
 
         // Initialize
-        loadData();
-        setInterval(autoRefresh, 1000);
-
+        loadData()
+        
         // Mode selector change
         document.getElementById('modeSelect').addEventListener('change', function() {
             if (this.value === 'simulation' && charges.length === 0) {
                 if (confirm('Möchten Sie Demo-Daten generieren?')) {
-                    generateSimulationData();
-                    updateDisplay();
+                    generateSimulationData()
+                    updateDisplay()
                 }
             }
-        });
+        })
     </script>
 </body>
 </html>
