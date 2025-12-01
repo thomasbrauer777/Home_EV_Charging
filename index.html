@@ -8,7 +8,6 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="apple-touch-icon" sizes="180x180" href="favicon.svg">
     
     <style>
         * {
@@ -485,29 +484,25 @@
         </div>
     </div>
 
-    <!-- Supabase Client Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <script>
+    <script type="module">
         // ============================================
         // SUPABASE KONFIGURATION
         // ============================================
-        const SUPABASE_URL = 'https://fgvjxgcgbdzuewukxedo.supabase.co'
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZndmp4Z2NnYmR6dWV3dWt4ZWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MTE3MTksImV4cCI6MjA3OTk4NzcxOX0.DhWTfgz9nfpt1OHbUJiETWkIwVU4lk6FweEHZl0stDg'
+        // TODO: Ersetze diese Werte mit deinen echten Supabase Credentials!
+        const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co'
+        const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY'
         
-        // Installation ID - einzigartig für diesen Haushalt
-        const INSTALLATION_ID = 'braeuer-odermatt-staeheli-bremgarten'
+        // TODO: Erstelle eine einzigartige ID für diese Installation
+        // z.B. 'braeuer-odermatt-staeheli-bremgarten'
+        const INSTALLATION_ID = 'demo-installation-1'
         
-        // Wait for Supabase library to load, then initialize
-        let supabaseClient;
+        // Supabase Client importieren (CDN)
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
         
-        // Initialize Supabase client
-        if (typeof supabase !== 'undefined' && supabase.createClient) {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('✅ Supabase connected:', SUPABASE_URL);
-        } else {
-            console.error('❌ Supabase library not loaded!');
-        }
+        // Supabase Client initialisieren
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        
+        console.log('✅ Supabase connected:', SUPABASE_URL)
         
         // ============================================
         // DATA STORAGE
