@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- House -->
+  <path d="M 20 50 L 50 25 L 80 50 L 80 85 L 20 85 Z" fill="url(#grad)" stroke="#5a67d8" stroke-width="2"/>
+  
+  <!-- Door -->
+  <rect x="40" y="65" width="20" height="20" fill="#5a67d8" rx="2"/>
+  
+  <!-- Window -->
+  <rect x="30" y="50" width="12" height="10" fill="#fff" opacity="0.8" rx="1"/>
+  <rect x="58" y="50" width="12" height="10" fill="#fff" opacity="0.8" rx="1"/>
+  
+  <!-- Lightning Bolt -->
+  <path d="M 65 35 L 55 50 L 62 50 L 52 70 L 62 55 L 55 55 Z" fill="#ffd700" stroke="#ffa500" stroke-width="1.5" stroke-linejoin="round"/>
+</svg>
