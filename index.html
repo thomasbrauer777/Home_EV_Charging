@@ -479,7 +479,10 @@
         </div>
     </div>
 
-    <script type="module">
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
         // ============================================
         // SUPABASE KONFIGURATION
         // ============================================
@@ -490,10 +493,10 @@
         const INSTALLATION_ID = 'braeuer-odermatt-staeheli-bremgarten'
         
         // Supabase Client importieren (CDN)
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+        const { createClient } = supabase
         
         // Supabase Client initialisieren
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
         
         console.log('✅ Supabase connected:', SUPABASE_URL)
         
@@ -1145,12 +1148,6 @@
             // Just update the display, don't add new charges automatically
             // User can manually add charges if needed
         }
-
-        // Make functions globally accessible for onclick handlers
-        window.saveSettings = saveSettings;
-        window.addManualCharge = addManualCharge;
-        window.markAsPaid = markAsPaid;
-        window.resetData = resetData;
 
         // Initialize
         loadData();
