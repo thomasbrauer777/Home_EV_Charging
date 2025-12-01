@@ -498,13 +498,16 @@
         // Installation ID - einzigartig für diesen Haushalt
         const INSTALLATION_ID = 'braeuer-odermatt-staeheli-bremgarten'
         
-        // Supabase Client importieren (CDN)
-        const { createClient } = supabase
+        // Wait for Supabase library to load, then initialize
+        let supabaseClient;
         
-        // Supabase Client initialisieren
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-        
-        console.log('✅ Supabase connected:', SUPABASE_URL)
+        // Initialize Supabase client
+        if (typeof supabase !== 'undefined' && supabase.createClient) {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('✅ Supabase connected:', SUPABASE_URL);
+        } else {
+            console.error('❌ Supabase library not loaded!');
+        }
         
         // ============================================
         // DATA STORAGE
