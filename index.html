@@ -299,9 +299,24 @@
                     <small style="color: #666; font-size: 0.85em;">Energie + Netz + Abgaben (22-7 Uhr)</small>
                 </div>
 
+                <div class="control-group" id="shellyModelGroup" style="display: none;">
+                    <label>Shelly Modell</label>
+                    <select id="shellyModel">
+                        <option value="">-- Modell wählen --</option>
+                        <option value="plug-s">Shelly Plug S (Gen1) - Schuko, 1-phasig</option>
+                        <option value="plug-s-plus">Shelly Plus Plug S (Gen2) - Schuko, 1-phasig</option>
+                        <option value="3em">Shelly 3EM (Gen1) - 3-Phasen Energiemessung</option>
+                        <option value="pro-3em">Shelly Pro 3EM (Gen2) - 3-Phasen Professional</option>
+                        <option value="1pm">Shelly 1PM (Gen1) - DIN-Schiene, 1-phasig</option>
+                        <option value="plus-1pm">Shelly Plus 1PM (Gen2) - DIN-Schiene, 1-phasig</option>
+                    </select>
+                    <small style="color: #666; font-size: 0.85em;">Wähle dein Shelly-Modell für die korrekte API-Integration</small>
+                </div>
+
                 <div class="control-group" id="shellyIpGroup" style="display: none;">
-                    <label>Shelly IP-Adresse</label>
+                    <label>Shelly IP-Adresse (optional)</label>
                     <input type="text" id="shellyIp" placeholder="192.168.1.100">
+                    <small style="color: #666; font-size: 0.85em;">Nur für lokale Verbindung - Cloud API empfohlen!</small>
                 </div>
             </div>
 
@@ -315,7 +330,8 @@
             <div class="info-box">
                 <h3>ℹ️ Wie funktioniert das?</h3>
                 <p><strong>Simulationsmodus:</strong> Generiert automatisch realistische Ladedaten zum Testen. Perfekt zum Ausprobieren!<br>
-                <strong>Live-Modus:</strong> Verbindet sich mit deinem Shelly 3EM und zeigt echte Verbrauchsdaten an.<br>
+                <strong>Live-Modus:</strong> Verbindet sich mit deinem Shelly und zeigt echte Verbrauchsdaten an.<br>
+                <strong>Shelly-Modelle:</strong> Verschiedene Modelle haben unterschiedliche APIs (Gen1 vs. Gen2). Wähle dein Modell für die richtige Integration.<br>
                 <strong>Stromtarife (CLASSIC):</strong> Das System verwendet automatisch den richtigen Tarif basierend auf der Ladezeit:<br>
                 • <strong>Hochtarif (Tag)</strong>: 7-22 Uhr → 16.68 Rp./kWh<br>
                 • <strong>Niedertarif (Nacht)</strong>: 22-7 Uhr → 16.06 Rp./kWh<br>
@@ -512,6 +528,7 @@
             mode: 'simulation',
             priceHigh: 0.1668, // Hochtarif (Tag): 7.17 + 6.17 + 3.34 Rp./kWh
             priceLow: 0.1606,  // Niedertarif (Nacht): 6.42 + 6.30 + 3.34 Rp./kWh
+            shellyModel: '',   // NEW: Store Shelly model selection
             shellyIp: '',
             lastReset: null
         };
@@ -527,12 +544,13 @@
                     document.getElementById('modeSelect').value = settings.mode;
                     document.getElementById('priceHighInput').value = settings.priceHigh || 0.1668;
                     document.getElementById('priceLowInput').value = settings.priceLow || 0.1606;
+                    document.getElementById('shellyModel').value = settings.shellyModel || '';
                     document.getElementById('shellyIp').value = settings.shellyIp || '';
                     updateModeDisplay();
                 }
                 
                 // Load charges from Supabase
-                const { data: chargesData, error: chargesError } = await supabase
+                const { data: chargesData, error: chargesError } = await supabaseClient
                     .from('charges')
                     .select('*')
                     .eq('installation_id', INSTALLATION_ID)
@@ -546,7 +564,7 @@
                 }
                 
                 // Load payment history from Supabase
-                const { data: paymentsData, error: paymentsError } = await supabase
+                const { data: paymentsData, error: paymentsError } = await supabaseClient
                     .from('payment_history')
                     .select('*')
                     .eq('installation_id', INSTALLATION_ID)
@@ -604,7 +622,7 @@
             
             // Save to Supabase
             if (newPayments.length > 0) {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('payment_history')
                     .insert(newPayments)
                     .select();
@@ -677,7 +695,7 @@
             
             // Save to Supabase
             if (newCharges.length > 0) {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('charges')
                     .insert(newCharges)
                     .select();
@@ -955,27 +973,45 @@
             settings.mode = document.getElementById('modeSelect').value;
             settings.priceHigh = parseFloat(document.getElementById('priceHighInput').value);
             settings.priceLow = parseFloat(document.getElementById('priceLowInput').value);
+            settings.shellyModel = document.getElementById('shellyModel').value;
             settings.shellyIp = document.getElementById('shellyIp').value;
             
             saveData();
             updateModeDisplay();
             updateDisplay();
             
-            alert('✅ Einstellungen gespeichert!');
+            // Show different message if model is selected
+            let message = '✅ Einstellungen gespeichert!';
+            if (settings.mode === 'live' && settings.shellyModel) {
+                const modelNames = {
+                    'plug-s': 'Shelly Plug S (Gen1)',
+                    'plug-s-plus': 'Shelly Plus Plug S (Gen2)',
+                    '3em': 'Shelly 3EM (Gen1)',
+                    'pro-3em': 'Shelly Pro 3EM (Gen2)',
+                    '1pm': 'Shelly 1PM (Gen1)',
+                    'plus-1pm': 'Shelly Plus 1PM (Gen2)'
+                };
+                message += '\n\nModell: ' + modelNames[settings.shellyModel];
+            }
+            
+            alert(message);
         }
 
         // Update mode display
         function updateModeDisplay() {
             const badge = document.getElementById('modeBadge');
+            const shellyModelGroup = document.getElementById('shellyModelGroup');
             const shellyGroup = document.getElementById('shellyIpGroup');
             
             if (settings.mode === 'simulation') {
                 badge.className = 'mode-badge mode-simulation';
                 badge.textContent = '🔄 Simulationsmodus';
+                shellyModelGroup.style.display = 'none';
                 shellyGroup.style.display = 'none';
             } else {
                 badge.className = 'mode-badge mode-live';
                 badge.textContent = '🟢 Live-Modus';
+                shellyModelGroup.style.display = 'block';
                 shellyGroup.style.display = 'block';
             }
         }
@@ -1013,7 +1049,7 @@
             };
             
             // Save to Supabase
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('charges')
                 .insert([newCharge])
                 .select();
@@ -1080,7 +1116,7 @@
                 };
                 
                 // Save to Supabase
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('payment_history')
                     .insert([newPayment])
                     .select();
@@ -1105,7 +1141,7 @@
             if (confirm('⚠️ Wirklich alle Daten löschen? Dies löscht auch die Gesamtkosten-Übersicht! Dies kann nicht rückgängig gemacht werden!')) {
                 try {
                     // Delete all charges from Supabase
-                    const { error: chargesError } = await supabase
+                    const { error: chargesError } = await supabaseClient
                         .from('charges')
                         .delete()
                         .eq('installation_id', INSTALLATION_ID);
@@ -1113,7 +1149,7 @@
                     if (chargesError) throw chargesError;
                     
                     // Delete all payments from Supabase
-                    const { error: paymentsError } = await supabase
+                    const { error: paymentsError } = await supabaseClient
                         .from('payment_history')
                         .delete()
                         .eq('installation_id', INSTALLATION_ID);
