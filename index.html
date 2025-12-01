@@ -511,11 +511,8 @@
         // Installation ID - einzigartig für diesen Haushalt
         const INSTALLATION_ID = 'braeuer-odermatt-staeheli-bremgarten'
         
-        // Supabase Client importieren (CDN)
-        const { createClient } = supabase
-        
-        // Supabase Client initialisieren
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        // Supabase Client initialisieren (CDN)
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
         
         console.log('✅ Supabase connected:', SUPABASE_URL)
         
