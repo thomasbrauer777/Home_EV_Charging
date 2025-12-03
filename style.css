@@ -160,7 +160,7 @@ select:focus {
 
 button {
     background: var(--primary-color);
-    color: var(--background-main); /* Dunkler Text auf hellem Button */
+    color: var(--background-main);
     padding: 12px 24px;
     border: none;
     border-radius: 8px;
@@ -169,7 +169,7 @@ button {
     cursor: pointer;
     transition: background 0.3s, transform 0.1s;
     margin-right: 10px;
-    margin-top: 10px;
+    /* margin-top: 10px; <--- ENTFERNT */ 
 }
 
 button:hover {
