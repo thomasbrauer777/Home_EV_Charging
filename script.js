@@ -12,6 +12,17 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 console.log('✅ Supabase connected:', SUPABASE_URL)
 
 // ============================================
+// ZAHLUNGSEMPFÄNGER DATEN (Für QR-Rechnung)
+// ============================================
+const QR_RECIPIENT_DATA = {
+    iban: 'CHXX XXXX XXXX XXXX XXXX X', // HIER MUSS DIE KORREKTE IBAN VON FAMILIE BRÄUER EINGEFÜGT WERDEN!
+    name: 'Familie Bräuer',
+    address: 'Musterstrasse 1',
+    city: '5600 Bremgarten',
+    country: 'CH'
+};
+
+// ============================================
 // DATA STORAGE & UTILITIES
 // ============================================
 let charges = [];
@@ -56,13 +67,96 @@ function calculateChargeDetails(charge) {
 }
 
 // ============================================
-// AUTHENTIFIZIERUNG & STATUSVERWALTUNG (NEU)
+// DATENFILTER FUNKTIONEN (NEU)
 // ============================================
 
 /**
- * Zeigt die App-Oberfläche oder die Login-Seite, basierend auf dem Anmeldestatus.
- * @param {boolean} isAuthenticated 
+ * Filtert die gesamten Ladevorgänge basierend auf den Werten in den Datums-Input-Feldern.
+ * Wird für History und Chart verwendet.
+ * @returns {Array} Gefilterte Ladevorgänge, sortiert nach Datum (neueste zuerst).
  */
+function getFilteredHistoryCharges() {
+    const startInput = document.getElementById('startDateInput').value;
+    const endInput = document.getElementById('endDateInput').value;
+    
+    if (!startInput && !endInput) {
+        // Wenn kein Filter gesetzt ist, wird die gesamte History angezeigt
+        return charges;
+    }
+
+    let startDate = null;
+    let endDate = null;
+    
+    // Konvertiert das Startdatum auf den Tagesanfang (00:00:00)
+    if (startInput) {
+        startDate = new Date(startInput);
+        startDate.setHours(0, 0, 0, 0);
+    }
+    
+    // Konvertiert das Enddatum auf den Tagesende (23:59:59)
+    if (endInput) {
+        endDate = new Date(endInput);
+        endDate.setHours(23, 59, 59, 999);
+    }
+    
+    return charges.filter(c => {
+        const chargeDate = new Date(c.date);
+        let passesFilter = true;
+
+        if (startDate && chargeDate < startDate) {
+            passesFilter = false;
+        }
+
+        if (endDate && chargeDate > endDate) {
+            passesFilter = false;
+        }
+
+        return passesFilter;
+    });
+}
+
+/**
+ * Wendet den Filter an und aktualisiert die Anzeige.
+ */
+function applyDateFilter() {
+    updateHistory();
+    updateChart();
+    alert('✅ Historischer Filter angewendet.');
+}
+
+/**
+ * Setzt die Datumsfelder zurück und aktualisiert die Anzeige.
+ */
+function clearDateFilter() {
+    document.getElementById('startDateInput').value = '';
+    document.getElementById('endDateInput').value = '';
+    applyDateFilter();
+}
+
+/**
+ * Setzt die Standardwerte für den Filter (Letzte 30 Tage).
+ */
+function setInitialDateFilter() {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 30); // Standard: Letzte 30 Tage
+
+    // Funktion zur Formatierung des Datums im Format YYYY-MM-DD
+    const formatDate = (date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
+
+    document.getElementById('startDateInput').value = formatDate(start);
+    document.getElementById('endDateInput').value = formatDate(end);
+}
+
+// ============================================
+// AUTHENTIFIZIERUNG & STATUSVERWALTUNG
+// ============================================
+
 function toggleViews(isAuthenticated) {
     const appContainer = document.getElementById('appContainer');
     const authContainer = document.getElementById('authContainer');
@@ -78,9 +172,6 @@ function toggleViews(isAuthenticated) {
     }
 }
 
-/**
- * Meldet den Benutzer mit E-Mail und Passwort an.
- */
 async function handleLogin() {
     const email = document.getElementById('emailInput').value;
     const password = document.getElementById('passwordInput').value;
@@ -100,9 +191,6 @@ async function handleLogin() {
     }
 }
 
-/**
- * Sendet einen Magic Link an die E-Mail-Adresse.
- */
 async function handleMagicLink() {
     const email = document.getElementById('emailInput').value;
     const errorDisplay = document.getElementById('authError');
@@ -115,10 +203,6 @@ async function handleMagicLink() {
 
     const { error } = await supabaseClient.auth.signInWithOtp({
         email: email,
-        options: {
-            // Optional: Wenn Sie einen bestimmten Link verwenden möchten
-            // emailRedirectTo: 'http://deine-app.com/callback'
-        }
     });
 
     if (error) {
@@ -130,9 +214,6 @@ async function handleMagicLink() {
     }
 }
 
-/**
- * Meldet den Benutzer ab.
- */
 async function handleLogout() {
     if (confirm('Sicher, dass Sie sich abmelden möchten?')) {
         const { error } = await supabaseClient.auth.signOut();
@@ -142,7 +223,6 @@ async function handleLogout() {
             alert('❌ Fehler beim Abmelden!');
         } else {
             toggleViews(false);
-            // Nach dem Logout die Daten zurücksetzen, damit sie nicht versehentlich sichtbar bleiben
             charges = [];
             paymentHistory = [];
             updateDisplay();
@@ -151,12 +231,11 @@ async function handleLogout() {
 }
 
 // ============================================
-// DATA HANDLING (Aktualisiert)
+// DATA HANDLING
 // ============================================
 
 async function loadData() {
     try {
-        // NEU: Zuerst den Authentifizierungsstatus prüfen
         const { data: { user } } = await supabaseClient.auth.getUser();
         
         if (!user) {
@@ -164,7 +243,7 @@ async function loadData() {
             return;
         }
         
-        toggleViews(true); // Nur fortfahren, wenn angemeldet
+        toggleViews(true); 
         
         const savedSettings = localStorage.getItem('evSettings');
         if (savedSettings) {
@@ -178,8 +257,6 @@ async function loadData() {
             updateModeDisplay();
         }
         
-        // ACHTUNG: Die folgenden Abfragen funktionieren nur, wenn die RLS-Policies 
-        // in Supabase auf 'authenticated' umgestellt wurden (siehe Anleitung unten).
         const { data: chargesData, error: chargesError } = await supabaseClient
             .from('charges')
             .select('*')
@@ -206,16 +283,15 @@ async function loadData() {
             console.log(`Loaded ${paymentHistory.length} payments from Supabase`);
         }
         
-        // Nur Demo-Daten generieren, wenn angemeldet und im Simulationsmodus
         if (settings.mode === 'simulation' && charges.length === 0) {
             await generateSimulationData();
             await generateDemoPaymentHistory();
         }
         
         updateDisplay();
+        
     } catch (error) {
         console.error('Error in loadData:', error);
-        // Bei einem allgemeinen Fehler zurück zur Login-Ansicht
         toggleViews(false);
         alert('Fehler beim Laden der Daten. Bitte überprüfe deine Supabase-Konfiguration oder den Login-Status.');
     }
@@ -311,14 +387,10 @@ async function generateSimulationData() {
     }
 }
 
-
 // ============================================
-// PDF EXPORT FUNKTIONALITÄT
+// PDF & QR FUNKTIONALITÄT
 // ============================================
 
-/**
- * Generiert die aktuelle Abrechnungsseite als PDF-Dokument.
- */
 function generatePDF() {
     if (typeof html2pdf === 'undefined') {
         alert('Fehler: PDF-Bibliothek konnte nicht geladen werden.');
@@ -328,24 +400,56 @@ function generatePDF() {
     const today = new Date().toLocaleDateString('de-CH');
     const filename = `Abrechnung_EV_Charge_Share_${today}.pdf`;
 
-    // Der Element-Selektor, der den Hauptinhalt der Seite umfasst
     const element = document.querySelector('#appContainer');
     
-    // Konfiguration für den PDF-Export
     const opt = {
-        margin: 1, // 1 cm Rand
+        margin: 1, 
         filename: filename,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, logging: false, dpi: 192, letterRendering: true }, 
         jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
     };
 
-    // Generiert und speichert die PDF
     html2pdf().set(opt).from(element).save();
 }
 
+/**
+ * Zeigt die Zahlungsdetails (Betrag, Empfänger, IBAN) in einem Alert an.
+ */
+function showPaymentDetails() {
+    // Ruft die aktuellen Abrechnungsdaten ab
+    const stats = updateStats(); 
+    const costPerParty = stats.costPerParty;
+    const today = dateFormatter.format(new Date());
+
+    if (costPerParty === 0) {
+        alert('ℹ️ Der aktuelle Abrechnungsbetrag ist Null. Es muss nichts bezahlt werden.');
+        return;
+    }
+    
+    // Generiert eine einfache Text-Nachricht mit allen benötigten Daten
+    const message = `=================================\n` +
+                    `  ZAHLUNGSAUFFORDERUNG (An Familie Bräuer)\n` +
+                    `=================================\n` +
+                    `\n` +
+                    `Betrag pro Familie: ${currencyFormatter.format(costPerParty)} CHF\n` +
+                    `Fälligkeit: Sofort\n` +
+                    `\n` +
+                    `Empfänger:\n` +
+                    `Name: ${QR_RECIPIENT_DATA.name}\n` +
+                    `Ort: ${QR_RECIPIENT_DATA.city}\n` +
+                    `IBAN: ${QR_RECIPIENT_DATA.iban}\n` +
+                    `\n` +
+                    `Verwendungszweck: E-Auto ${today}\n` +
+                    `\n` +
+                    `*Bitte diese Daten für Ihre Mobile Banking App (z.B. TWINT/Scan) verwenden.`;
+
+    alert(message);
+}
+
+
 // ============================================
-// DISPLAY UPDATES
+// DISPLAY UPDATES (Aktualisiert)
 // ============================================
 
 function updateDisplay() {
@@ -358,6 +462,7 @@ function updateDisplay() {
 function updateStats() {
     const now = new Date();
     
+    // Die Abrechnungsstatistik bleibt beim letzten Reset-Datum
     let relevantCharges = charges;
     if (settings.lastReset) {
         const resetDate = new Date(settings.lastReset);
@@ -381,17 +486,16 @@ function updateStats() {
     const odermattStatus = document.getElementById('odermattStatus');
     const staeheliStatus = document.getElementById('staeheliStatus');
     
-    // Update status (Dark Mode Colors an die CSS-Regeln anpassen)
     if (costPerParty > 0.005) {
         brauerStatus.textContent = 'Ausstehend';
-        brauerStatus.style.color = '#ff9999'; // Hellrot
+        brauerStatus.style.color = '#ff9999'; 
         odermattStatus.textContent = 'Ausstehend';
         odermattStatus.style.color = '#ff9999';
         staeheliStatus.textContent = 'Ausstehend';
         staeheliStatus.style.color = '#ff9999';
     } else {
         brauerStatus.textContent = 'Bezahlt ✓';
-        brauerStatus.style.color = '#00ffc2'; // Electric Cyan
+        brauerStatus.style.color = '#00ffc2';
         odermattStatus.textContent = 'Bezahlt ✓';
         odermattStatus.style.color = '#00ffc2';
         staeheliStatus.textContent = 'Bezahlt ✓';
@@ -435,18 +539,19 @@ function updateStats() {
 }
 
 function updateHistory() {
+    // Verwendet den NEUEN Filter
+    const filteredCharges = getFilteredHistoryCharges();
     const tbody = document.getElementById('historyTable');
     
-    if (charges.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Keine Ladevorgänge vorhanden</td></tr>';
+    if (filteredCharges.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-color-dark);">Keine Ladevorgänge im ausgewählten Zeitraum vorhanden</td></tr>';
         return;
     }
     
-    tbody.innerHTML = charges.map(c => {
+    tbody.innerHTML = filteredCharges.map(c => {
         const date = new Date(c.date);
         const details = calculateChargeDetails(c);
         
-        // Anpassung der Badges für Dark Mode
         const tariffBadge = details.tariff === 'high' 
             ? '<span style="background: #ffcc00; color: #333; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 600;">HT</span>'
             : '<span style="background: #4a5568; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 600;">NT</span>';
@@ -468,7 +573,7 @@ function updateMonthlyStats() {
     const tbody = document.getElementById('monthlyStatsTable');
     
     if (paymentHistory.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Noch keine Zahlungen erfasst</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-color-dark);">Noch keine Zahlungen erfasst</td></tr>';
         document.getElementById('totalAllKwh').textContent = '0 kWh';
         document.getElementById('totalAllCost').textContent = '0.00 CHF';
         return;
@@ -521,16 +626,22 @@ function updateMonthlyStats() {
 }
 
 function updateChart() {
+    // Verwendet den NEUEN Filter
+    const filteredCharges = getFilteredHistoryCharges(); 
     const container = document.getElementById('chartContainer');
     const last7Days = [];
     const today = new Date();
     
+    // Ermittelt den Datumsbereich basierend auf dem Filter oder den letzten 7 Tagen
+    const filterEnd = document.getElementById('endDateInput').value ? new Date(document.getElementById('endDateInput').value) : today;
+    filterEnd.setHours(0, 0, 0, 0);
+
     for (let i = 6; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
+        const date = new Date(filterEnd);
+        date.setDate(filterEnd.getDate() - i);
         date.setHours(0, 0, 0, 0);
         
-        const dayCharges = charges.filter(c => {
+        const dayCharges = filteredCharges.filter(c => {
             const cd = new Date(c.date);
             cd.setHours(0, 0, 0, 0);
             return cd.getTime() === date.getTime();
@@ -758,13 +869,14 @@ async function resetData() {
 }
 
 // ============================================
-// INITIALISIERUNG & EVENT-LISTENERS (Aktualisiert)
+// INITIALISIERUNG & EVENT-LISTENERS
 // ============================================
 
-// Haupt-Listener für Login-Aktionen
 document.addEventListener('DOMContentLoaded', () => {
     // Initialer Ladevorgang
     loadData();
+    // Setzt den Standardfilter auf die letzten 30 Tage
+    setInitialDateFilter();
 
     // Event Listener für den Anmelde-Button
     document.getElementById('loginButton').addEventListener('click', handleLogin);
@@ -786,7 +898,6 @@ document.addEventListener('DOMContentLoaded', () => {
     supabaseClient.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN') {
             console.log('User signed in. Reloading data.');
-            // Daten neu laden, um die App-Ansicht zu zeigen
             loadData(); 
         } else if (event === 'SIGNED_OUT') {
             console.log('User signed out. Showing login view.');
