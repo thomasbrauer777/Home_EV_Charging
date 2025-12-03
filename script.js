@@ -676,3 +676,8 @@ document.getElementById('modeSelect').addEventListener('change', function() {
         }
     }
 });
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>  <script src="script.js"></script>
+</body>
+</html>
