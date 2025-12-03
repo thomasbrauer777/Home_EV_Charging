@@ -56,89 +56,6 @@ function calculateChargeDetails(charge) {
 }
 
 // ============================================
-// DATENFILTER FUNKTIONEN
-// ============================================
-
-/**
- * Filtert die gesamten Ladevorgänge basierend auf den Werten in den Datums-Input-Feldern.
- * @returns {Array} Gefilterte Ladevorgänge, sortiert nach Datum (neueste zuerst).
- */
-function getFilteredHistoryCharges() {
-    const startInput = document.getElementById('startDateInput').value;
-    const endInput = document.getElementById('endDateInput').value;
-    
-    if (!startInput && !endInput) {
-        return charges;
-    }
-
-    let startDate = null;
-    let endDate = null;
-    
-    if (startInput) {
-        startDate = new Date(startInput);
-        startDate.setHours(0, 0, 0, 0);
-    }
-    
-    if (endInput) {
-        endDate = new Date(endInput);
-        endDate.setHours(23, 59, 59, 999);
-    }
-    
-    return charges.filter(c => {
-        const chargeDate = new Date(c.date);
-        let passesFilter = true;
-
-        if (startDate && chargeDate < startDate) {
-            passesFilter = false;
-        }
-
-        if (endDate && chargeDate > endDate) {
-            passesFilter = false;
-        }
-
-        return passesFilter;
-    });
-}
-
-/**
- * Wendet den Filter an und aktualisiert die Anzeige.
- */
-function applyDateFilter() {
-    updateHistory();
-    updateChart();
-    alert('✅ Historischer Filter angewendet.');
-}
-
-/**
- * Setzt die Datumsfelder zurück und aktualisiert die Anzeige.
- */
-function clearDateFilter() {
-    document.getElementById('startDateInput').value = '';
-    document.getElementById('endDateInput').value = '';
-    applyDateFilter();
-}
-
-/**
- * Setzt die Standardwerte für den Filter (Letzte 30 Tage).
- */
-function setInitialDateFilter() {
-    const end = new Date();
-    const start = new Date();
-    start.setDate(end.getDate() - 30); 
-
-    // Funktion zur Formatierung des Datums im Format YYYY-MM-DD
-    const formatDate = (date) => {
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
-    };
-
-    document.getElementById('startDateInput').value = formatDate(start);
-    document.getElementById('endDateInput').value = formatDate(end);
-}
-
-// ============================================
 // AUTHENTIFIZIERUNG & STATUSVERWALTUNG
 // ============================================
 
@@ -477,11 +394,12 @@ function updateStats() {
 }
 
 function updateHistory() {
-    const filteredCharges = getFilteredHistoryCharges();
+    // KEIN FILTER: Zeigt alle Ladevorgänge
+    const filteredCharges = charges;
     const tbody = document.getElementById('historyTable');
     
     if (filteredCharges.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-color-dark);">Keine Ladevorgänge im ausgewählten Zeitraum vorhanden</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-color-dark);">Keine Ladevorgänge vorhanden</td></tr>';
         return;
     }
     
@@ -563,12 +481,14 @@ function updateMonthlyStats() {
 }
 
 function updateChart() {
-    const filteredCharges = getFilteredHistoryCharges(); 
+    // KEIN FILTER: Wird nur für die letzten 7 Tage berechnet (wie ursprünglich)
+    const filteredCharges = charges; 
     const container = document.getElementById('chartContainer');
     const last7Days = [];
     const today = new Date();
     
-    const filterEnd = document.getElementById('endDateInput').value ? new Date(document.getElementById('endDateInput').value) : today;
+    // Basis ist heute
+    const filterEnd = today;
     filterEnd.setHours(0, 0, 0, 0);
 
     for (let i = 6; i >= 0; i--) {
@@ -810,8 +730,6 @@ async function resetData() {
 document.addEventListener('DOMContentLoaded', () => {
     // Initialer Ladevorgang
     loadData();
-    // Setzt den Standardfilter auf die letzten 30 Tage
-    setInitialDateFilter();
 
     // Event Listener für den Anmelde-Button
     document.getElementById('loginButton').addEventListener('click', handleLogin);
