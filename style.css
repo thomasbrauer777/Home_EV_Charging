@@ -1,6 +1,6 @@
 :root {
     --primary-color: #00ffc2; /* Electric Cyan/Green for Energy */
-    --accent-dark: #00cc9c;
+    --accent-dark: #008f84;
     --background-main: #1A2027; /* Dark Anthracite */
     --background-card: #2D3748; /* Slightly lighter dark card */
     --text-color-light: #f7f7f7;
@@ -31,7 +31,7 @@ body {
     background: var(--background-card);
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5); /* Tieferer Schatten */
+    box-shadow: 0 0 15px rgba(0,0,0,0.5); 
     margin-bottom: 20px;
 }
 
@@ -56,13 +56,13 @@ body {
 }
 
 .mode-simulation {
-    background: #ffcc00; /* Gelb für Simulation */
+    background: #ffcc00; 
     color: #333;
 }
 
 .mode-live {
     background: var(--primary-color);
-    color: var(--background-main); /* Dunkler Text auf heller Akzentfarbe */
+    color: var(--background-main); 
 }
 
 .grid {
@@ -80,9 +80,9 @@ body {
 .card {
     background: var(--background-card);
     padding: 25px;
-    border-radius: 12px;
+    border-radius: 12px; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    border: 1px solid var(--border-color); /* Definierter Rand */
+    border: 1px solid var(--border-color); 
     margin-bottom: 20px;
 }
 
@@ -105,10 +105,10 @@ body {
 }
 
 .stat-value {
-    font-size: 2.2em; /* Etwas größer für Impact */
+    font-size: 2.2em; 
     font-weight: bold;
     color: var(--primary-color);
-    text-shadow: 0 0 5px rgba(0, 255, 194, 0.4); /* Leichter Neon-Effekt */
+    text-shadow: 0 0 5px rgba(0, 255, 194, 0.4); 
 }
 
 .stat-unit {
@@ -145,7 +145,7 @@ select {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1em;
-    background: #1f2937; /* Dunkleres Input-Feld */
+    background: #1f2937; 
     color: var(--text-color-light);
     transition: border-color 0.3s;
 }
@@ -160,7 +160,7 @@ select:focus {
 
 button {
     background: var(--primary-color);
-    color: var(--background-main);
+    color: var(--background-main); 
     padding: 12px 24px;
     border: none;
     border-radius: 8px;
@@ -169,7 +169,7 @@ button {
     cursor: pointer;
     transition: background 0.3s, transform 0.1s;
     margin-right: 10px;
-    /* margin-top: 10px; <--- ENTFERNT */ 
+    /* margin-top: 10px; is removed in previous step */
 }
 
 button:hover {
@@ -241,7 +241,7 @@ button.danger:hover {
     min-height: 5px;
     transition: height 0.3s;
     position: relative;
-    box-shadow: 0 -1px 8px rgba(0, 255, 194, 0.5); /* Starker Chart-Akzent */
+    box-shadow: 0 -1px 8px rgba(0, 255, 194, 0.5); 
 }
 
 .chart-bar:hover {
@@ -283,11 +283,11 @@ button.danger:hover {
 }
 
 #brauerStatus[style*="ef4444"], #odermattStatus[style*="ef4444"], #staeheliStatus[style*="ef4444"] {
-    color: #ff9999 !important; /* Helleres Rot auf dunklem Grund */
+    color: #ff9999 !important; 
 }
 
 #brauerStatus[style*="10b981"], #odermattStatus[style*="10b981"], #staeheliStatus[style*="10b981"] {
-    color: var(--primary-color) !important; /* Grüne Haken in Akzentfarbe */
+    color: var(--primary-color) !important; 
 }
 
 @media (max-width: 768px) {
@@ -297,5 +297,50 @@ button.danger:hover {
 
     .header h1 {
         font-size: 1.5em;
+    }
+}
+
+/* ========================================================= */
+/* NEU: DRUCK- & PDF-OPTIMIERUNG (Seitenumbrüche) */
+/* ========================================================= */
+@media print {
+    /* Wichtig: Verhindert, dass die Karte selbst zerschnitten wird */
+    .card {
+        page-break-inside: avoid;
+        margin-bottom: 1.5cm; /* Extra Abstand, um den Umbruch zu erleichtern */
+        border: none; /* Ränder entfernen, um PDF sauberer zu machen */
+        box-shadow: none;
+    }
+
+    /* Erzwingt einen Umbruch nach der Hauptübersicht und nach der Monatsstatistik */
+    .pdf-break-after {
+        page-break-after: always;
+    }
+
+    /* Die Steuerungsbox (Buttons/Einstellungen) und der Info-Kasten sollen nicht gedruckt werden */
+    .controls, .header button {
+        display: none !important;
+    }
+
+    /* Farben im Druck: Für saubere PDFs sollten wir auf Schwarz/Weiß umstellen */
+    body, .card {
+        background: white !important;
+        color: black !important;
+    }
+    .header, .controls, .info-box {
+        background: #f0f0f0 !important;
+    }
+    h1, h2, th {
+        color: black !important;
+    }
+    .stat-value {
+        color: #007a71 !important; /* Dunkles Teal für Kontrast */
+        text-shadow: none !important;
+    }
+    .history-table th {
+        background: #e0e0e0 !important;
+    }
+    .chart-container {
+        border: 1px solid #ccc;
     }
 }
