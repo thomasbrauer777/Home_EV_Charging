@@ -12,17 +12,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 console.log('✅ Supabase connected:', SUPABASE_URL)
 
 // ============================================
-// ZAHLUNGSEMPFÄNGER DATEN (Für QR-Rechnung)
-// ============================================
-const QR_RECIPIENT_DATA = {
-    iban: 'CHXX XXXX XXXX XXXX XXXX X', // HIER MUSS DIE KORREKTE IBAN VON FAMILIE BRÄUER EINGEFÜGT WERDEN!
-    name: 'Familie Bräuer',
-    address: 'Musterstrasse 1',
-    city: '5600 Bremgarten',
-    country: 'CH'
-};
-
-// ============================================
 // DATA STORAGE & UTILITIES
 // ============================================
 let charges = [];
@@ -67,12 +56,11 @@ function calculateChargeDetails(charge) {
 }
 
 // ============================================
-// DATENFILTER FUNKTIONEN (NEU)
+// DATENFILTER FUNKTIONEN
 // ============================================
 
 /**
  * Filtert die gesamten Ladevorgänge basierend auf den Werten in den Datums-Input-Feldern.
- * Wird für History und Chart verwendet.
  * @returns {Array} Gefilterte Ladevorgänge, sortiert nach Datum (neueste zuerst).
  */
 function getFilteredHistoryCharges() {
@@ -80,20 +68,17 @@ function getFilteredHistoryCharges() {
     const endInput = document.getElementById('endDateInput').value;
     
     if (!startInput && !endInput) {
-        // Wenn kein Filter gesetzt ist, wird die gesamte History angezeigt
         return charges;
     }
 
     let startDate = null;
     let endDate = null;
     
-    // Konvertiert das Startdatum auf den Tagesanfang (00:00:00)
     if (startInput) {
         startDate = new Date(startInput);
         startDate.setHours(0, 0, 0, 0);
     }
     
-    // Konvertiert das Enddatum auf den Tagesende (23:59:59)
     if (endInput) {
         endDate = new Date(endInput);
         endDate.setHours(23, 59, 59, 999);
@@ -139,7 +124,7 @@ function clearDateFilter() {
 function setInitialDateFilter() {
     const end = new Date();
     const start = new Date();
-    start.setDate(end.getDate() - 30); // Standard: Letzte 30 Tage
+    start.setDate(end.getDate() - 30); 
 
     // Funktion zur Formatierung des Datums im Format YYYY-MM-DD
     const formatDate = (date) => {
@@ -157,6 +142,10 @@ function setInitialDateFilter() {
 // AUTHENTIFIZIERUNG & STATUSVERWALTUNG
 // ============================================
 
+/**
+ * Zeigt die App-Oberfläche oder die Login-Seite, basierend auf dem Anmeldestatus.
+ * @param {boolean} isAuthenticated 
+ */
 function toggleViews(isAuthenticated) {
     const appContainer = document.getElementById('appContainer');
     const authContainer = document.getElementById('authContainer');
@@ -172,6 +161,9 @@ function toggleViews(isAuthenticated) {
     }
 }
 
+/**
+ * Meldet den Benutzer mit E-Mail und Passwort an.
+ */
 async function handleLogin() {
     const email = document.getElementById('emailInput').value;
     const password = document.getElementById('passwordInput').value;
@@ -191,6 +183,9 @@ async function handleLogin() {
     }
 }
 
+/**
+ * Sendet einen Magic Link an die E-Mail-Adresse.
+ */
 async function handleMagicLink() {
     const email = document.getElementById('emailInput').value;
     const errorDisplay = document.getElementById('authError');
@@ -214,6 +209,9 @@ async function handleMagicLink() {
     }
 }
 
+/**
+ * Meldet den Benutzer ab.
+ */
 async function handleLogout() {
     if (confirm('Sicher, dass Sie sich abmelden möchten?')) {
         const { error } = await supabaseClient.auth.signOut();
@@ -223,6 +221,7 @@ async function handleLogout() {
             alert('❌ Fehler beim Abmelden!');
         } else {
             toggleViews(false);
+            // Nach dem Logout die Daten zurücksetzen
             charges = [];
             paymentHistory = [];
             updateDisplay();
@@ -387,69 +386,9 @@ async function generateSimulationData() {
     }
 }
 
-// ============================================
-// PDF & QR FUNKTIONALITÄT
-// ============================================
-
-function generatePDF() {
-    if (typeof html2pdf === 'undefined') {
-        alert('Fehler: PDF-Bibliothek konnte nicht geladen werden.');
-        return;
-    }
-
-    const today = new Date().toLocaleDateString('de-CH');
-    const filename = `Abrechnung_EV_Charge_Share_${today}.pdf`;
-
-    const element = document.querySelector('#appContainer');
-    
-    const opt = {
-        margin: 1, 
-        filename: filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, logging: false, dpi: 192, letterRendering: true }, 
-        jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(element).save();
-}
-
-/**
- * Zeigt die Zahlungsdetails (Betrag, Empfänger, IBAN) in einem Alert an.
- */
-function showPaymentDetails() {
-    // Ruft die aktuellen Abrechnungsdaten ab
-    const stats = updateStats(); 
-    const costPerParty = stats.costPerParty;
-    const today = dateFormatter.format(new Date());
-
-    if (costPerParty === 0) {
-        alert('ℹ️ Der aktuelle Abrechnungsbetrag ist Null. Es muss nichts bezahlt werden.');
-        return;
-    }
-    
-    // Generiert eine einfache Text-Nachricht mit allen benötigten Daten
-    const message = `=================================\n` +
-                    `  ZAHLUNGSAUFFORDERUNG (An Familie Bräuer)\n` +
-                    `=================================\n` +
-                    `\n` +
-                    `Betrag pro Familie: ${currencyFormatter.format(costPerParty)} CHF\n` +
-                    `Fälligkeit: Sofort\n` +
-                    `\n` +
-                    `Empfänger:\n` +
-                    `Name: ${QR_RECIPIENT_DATA.name}\n` +
-                    `Ort: ${QR_RECIPIENT_DATA.city}\n` +
-                    `IBAN: ${QR_RECIPIENT_DATA.iban}\n` +
-                    `\n` +
-                    `Verwendungszweck: E-Auto ${today}\n` +
-                    `\n` +
-                    `*Bitte diese Daten für Ihre Mobile Banking App (z.B. TWINT/Scan) verwenden.`;
-
-    alert(message);
-}
-
 
 // ============================================
-// DISPLAY UPDATES (Aktualisiert)
+// DISPLAY UPDATES
 // ============================================
 
 function updateDisplay() {
@@ -462,7 +401,6 @@ function updateDisplay() {
 function updateStats() {
     const now = new Date();
     
-    // Die Abrechnungsstatistik bleibt beim letzten Reset-Datum
     let relevantCharges = charges;
     if (settings.lastReset) {
         const resetDate = new Date(settings.lastReset);
@@ -539,7 +477,6 @@ function updateStats() {
 }
 
 function updateHistory() {
-    // Verwendet den NEUEN Filter
     const filteredCharges = getFilteredHistoryCharges();
     const tbody = document.getElementById('historyTable');
     
@@ -626,13 +563,11 @@ function updateMonthlyStats() {
 }
 
 function updateChart() {
-    // Verwendet den NEUEN Filter
     const filteredCharges = getFilteredHistoryCharges(); 
     const container = document.getElementById('chartContainer');
     const last7Days = [];
     const today = new Date();
     
-    // Ermittelt den Datumsbereich basierend auf dem Filter oder den letzten 7 Tagen
     const filterEnd = document.getElementById('endDateInput').value ? new Date(document.getElementById('endDateInput').value) : today;
     filterEnd.setHours(0, 0, 0, 0);
 
