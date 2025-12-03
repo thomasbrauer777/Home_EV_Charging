@@ -1,10 +1,11 @@
 :root {
-    --primary-color: #00a89d; /* Electric Teal/Cyan for Energy/Focus */
-    --accent-dark: #008f84;
-    --background-main: #f7f7f7; /* Very light gray */
-    --background-card: #ffffff;
-    --text-color: #333;
-    --border-color: #e0e0e0;
+    --primary-color: #00ffc2; /* Electric Cyan/Green for Energy */
+    --accent-dark: #00cc9c;
+    --background-main: #1A2027; /* Dark Anthracite */
+    --background-card: #2D3748; /* Slightly lighter dark card */
+    --text-color-light: #f7f7f7;
+    --text-color-dark: #cbd5e0; /* Subtext */
+    --border-color: #4a5568;
 }
 
 * {
@@ -18,6 +19,7 @@ body {
     background: var(--background-main);
     min-height: 100vh;
     padding: 20px;
+    color: var(--text-color-light);
 }
 
 .container {
@@ -29,14 +31,18 @@ body {
     background: var(--background-card);
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* Subtilerer Schatten */
+    box-shadow: 0 0 15px rgba(0,0,0,0.5); /* Tieferer Schatten */
     margin-bottom: 20px;
 }
 
 .header h1 {
-    color: var(--text-color);
+    color: var(--text-color-light);
     margin-bottom: 10px;
     font-size: 2em;
+}
+
+.header p {
+    color: var(--text-color-dark) !important;
 }
 
 .mode-badge {
@@ -46,16 +52,17 @@ body {
     font-size: 0.9em;
     font-weight: 600;
     margin-top: 10px;
+    transition: all 0.3s;
 }
 
 .mode-simulation {
-    background: #ffd700;
-    color: var(--text-color);
+    background: #ffcc00; /* Gelb für Simulation */
+    color: #333;
 }
 
 .mode-live {
     background: var(--primary-color);
-    color: white;
+    color: var(--background-main); /* Dunkler Text auf heller Akzentfarbe */
 }
 
 .grid {
@@ -73,16 +80,17 @@ body {
 .card {
     background: var(--background-card);
     padding: 25px;
-    border-radius: 12px; /* Etwas kantiger */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color); /* Definierter Rand */
     margin-bottom: 20px;
 }
 
 .card h2 {
-    color: var(--text-color);
+    color: var(--text-color-light);
     margin-bottom: 15px;
     font-size: 1.3em;
-    border-bottom: 2px solid var(--primary-color); /* Akzent-Farbe */
+    border-bottom: 2px solid var(--primary-color);
     padding-bottom: 10px;
 }
 
@@ -91,20 +99,21 @@ body {
 }
 
 .stat-label {
-    color: #666;
+    color: var(--text-color-dark);
     font-size: 0.9em;
     margin-bottom: 5px;
 }
 
 .stat-value {
-    font-size: 2em;
+    font-size: 2.2em; /* Etwas größer für Impact */
     font-weight: bold;
-    color: var(--primary-color); /* Wichtige Werte in Akzentfarbe */
+    color: var(--primary-color);
+    text-shadow: 0 0 5px rgba(0, 255, 194, 0.4); /* Leichter Neon-Effekt */
 }
 
 .stat-unit {
     font-size: 0.6em;
-    color: #999;
+    color: var(--text-color-dark);
     margin-left: 5px;
 }
 
@@ -112,7 +121,8 @@ body {
     background: var(--background-card);
     padding: 25px;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
     margin-bottom: 20px;
 }
 
@@ -123,7 +133,7 @@ body {
 .control-group label {
     display: block;
     margin-bottom: 8px;
-    color: var(--text-color);
+    color: var(--text-color-light);
     font-weight: 600;
 }
 
@@ -132,9 +142,11 @@ input[type="text"],
 select {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--border-color); /* Dünnerer Rand */
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1em;
+    background: #1f2937; /* Dunkleres Input-Feld */
+    color: var(--text-color-light);
     transition: border-color 0.3s;
 }
 
@@ -143,17 +155,17 @@ input[type="text"]:focus,
 select:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(0, 168, 157, 0.2);
+    box-shadow: 0 0 0 2px rgba(0, 255, 194, 0.2);
 }
 
 button {
     background: var(--primary-color);
-    color: white;
+    color: var(--background-main); /* Dunkler Text auf hellem Button */
     padding: 12px 24px;
     border: none;
     border-radius: 8px;
     font-size: 1em;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: background 0.3s, transform 0.1s;
     margin-right: 10px;
@@ -170,6 +182,7 @@ button:active {
 
 button.secondary {
     background: #64748b;
+    color: var(--text-color-light);
 }
 
 button.secondary:hover {
@@ -195,22 +208,23 @@ button.danger:hover {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
+    color: var(--text-color-dark);
 }
 
 .history-table th {
-    background: var(--background-main);
+    background: #232d3a;
     font-weight: 600;
-    color: var(--text-color);
+    color: var(--text-color-light);
 }
 
 .history-table tr:hover {
-    background: var(--background-main);
+    background: #232d3a;
 }
 
 .chart-container {
     margin-top: 20px;
     height: 220px;
-    background: #fafafa;
+    background: #1f2937;
     border-radius: 8px;
     padding: 15px;
     padding-top: 50px;
@@ -222,11 +236,12 @@ button.danger:hover {
 
 .chart-bar {
     flex: 1;
-    background: var(--primary-color); /* Akzent-Farbe für den Chart */
+    background: var(--primary-color);
     border-radius: 4px 4px 0 0;
     min-height: 5px;
     transition: height 0.3s;
     position: relative;
+    box-shadow: 0 -1px 8px rgba(0, 255, 194, 0.5); /* Starker Chart-Akzent */
 }
 
 .chart-bar:hover {
@@ -239,26 +254,40 @@ button.danger:hover {
     left: 50%;
     transform: translateX(-50%);
     font-size: 0.8em;
-    color: #666;
+    color: var(--text-color-dark);
     white-space: nowrap;
 }
 
 .info-box {
-    background: #e0f2f1; /* Sehr helles Teal */
+    background: #1f2937;
     border-left: 4px solid var(--primary-color);
     padding: 15px;
     border-radius: 8px;
     margin-top: 20px;
+    color: var(--text-color-dark);
 }
 
 .info-box h3 {
-    color: var(--text-color);
+    color: var(--text-color-light);
     margin-bottom: 8px;
 }
 
 .info-box p {
-    color: #666;
+    color: var(--text-color-dark);
     line-height: 1.6;
+}
+
+/* Spezifische Anpassungen für Status-Badges im Dark Mode */
+#brauerStatus, #odermattStatus, #staeheliStatus {
+    font-weight: 700 !important;
+}
+
+#brauerStatus[style*="ef4444"], #odermattStatus[style*="ef4444"], #staeheliStatus[style*="ef4444"] {
+    color: #ff9999 !important; /* Helleres Rot auf dunklem Grund */
+}
+
+#brauerStatus[style*="10b981"], #odermattStatus[style*="10b981"], #staeheliStatus[style*="10b981"] {
+    color: var(--primary-color) !important; /* Grüne Haken in Akzentfarbe */
 }
 
 @media (max-width: 768px) {
