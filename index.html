@@ -121,10 +121,26 @@
                     <small style="color: var(--text-color-dark); font-size: 0.85em;">Nur für lokale Verbindung - Cloud API empfohlen!</small>
                 </div>
             </div>
-
+            
+            <h2 style="margin-top: 30px; margin-bottom: 20px; color: var(--text-color-light);">📅 Historischer Filter</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div class="control-group">
+                    <label>Startdatum</label>
+                    <input type="date" id="startDateInput">
+                </div>
+                <div class="control-group">
+                    <label>Enddatum</label>
+                    <input type="date" id="endDateInput">
+                </div>
+            </div>
+            <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
+                <button class="secondary" onclick="clearDateFilter()">Filter zurücksetzen</button>
+                <button onclick="applyDateFilter()">Filter anwenden</button>
+            </div>
             <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
                 <button onclick="saveSettings()">💾 Einstellungen speichern</button>
                 <button onclick="generatePDF()">📄 PDF Export</button>
+                <button class="secondary" onclick="showPaymentDetails()">📲 QR-Zahlung anzeigen</button>
                 <button class="secondary" onclick="addManualCharge()">➕ Ladevorgang manuell hinzufügen</button>
                 <button class="secondary" onclick="markAsPaid()">✅ Als bezahlt markieren</button>
                 <button class="danger" onclick="resetData()">🗑️ Alle Daten zurücksetzen</button>
@@ -143,7 +159,7 @@
             </div>
         </div>
 
-        <div class="card grid-single">
+        <div class="card grid-single pdf-break-after">
             <h2>📊 Aktueller Abrechnungszeitraum</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                 <div class="stat">
@@ -246,7 +262,7 @@
             <div class="chart-container" id="chartContainer"></div>
         </div>
 
-        <div class="card">
+        <div class="card pdf-break-after">
             <h2>💰 Gesamtkosten nach Monat (Alle Familien)</h2>
             <p style="color: var(--text-color-dark); margin-bottom: 15px;">Monatliche Übersicht aller Ladekosten über alle Abrechnungszeiträume hinweg</p>
             <table class="history-table">
