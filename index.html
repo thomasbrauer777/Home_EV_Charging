@@ -63,7 +63,7 @@
 
             <div style="margin-top: 20px;">
                 <button onclick="saveSettings()">💾 Einstellungen speichern</button>
-                <button class="secondary" onclick="addManualCharge()">➕ Ladevorgang manuell hinzufügen</button>
+                <button onclick="generatePDF()">📄 PDF Export</button> <button class="secondary" onclick="addManualCharge()">➕ Ladevorgang manuell hinzufügen</button>
                 <button class="secondary" onclick="markAsPaid()">✅ Als bezahlt markieren</button>
                 <button class="danger" onclick="resetData()">🗑️ Alle Daten zurücksetzen</button>
             </div>
@@ -241,6 +241,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+
     <script src="script.js"></script>
 </body>
 </html>
