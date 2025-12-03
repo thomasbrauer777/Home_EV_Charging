@@ -3,17 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Auto Ladekosten - Gemeinsame Abrechnung</title>
+    <title>E-Auto Ladekosten - Gesicherte Abrechnung</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Zusätzlicher Stil für die Login-Karte */
+        .auth-card {
+            max-width: 400px;
+            margin: 10vh auto;
+            padding: 40px;
+            background: var(--card-bg-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        .auth-card h2 {
+            margin-bottom: 25px;
+            text-align: center;
+            color: var(--text-color);
+        }
+        .auth-card input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--input-border-color);
+            border-radius: 8px;
+            background-color: var(--input-bg-color);
+            color: var(--text-color);
+        }
+        .auth-card button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+        .auth-card button:hover {
+            background-color: var(--primary-color-dark);
+        }
+        .error-message {
+            color: #ef4444;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>⚡ E-Auto Ladekosten - Gemeinsame Abrechnung</h1>
-            <span class="mode-badge" id="modeBadge">🔄 Simulationsmodus</span>
-            <p style="margin-top: 15px; color: #666;">Kostenaufteilung auf 3 Parteien: Familie Bräuer, Familie Odermatt & Familie Stäheli</p>
+
+    <div id="authContainer" class="auth-card">
+        <h2>🔒 Zugang erforderlich</h2>
+        <input type="email" id="emailInput" placeholder="E-Mail" required>
+        <input type="password" id="passwordInput" placeholder="Passwort" required>
+        <div id="authError" class="error-message" style="display: none;"></div>
+        <button id="loginButton">Anmelden</button>
+        <div style="margin-top: 15px; text-align: center;">
+            <a href="#" id="magicLinkButton" style="color: var(--secondary-color); font-size: 0.9em; text-decoration: none;">Link per E-Mail senden (Passwort vergessen)</a>
+        </div>
+    </div>
+    
+    <div class="container" id="appContainer" style="display: none;">
+        <div class="header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>⚡ E-Auto Ladekosten - Gemeinsame Abrechnung</h1>
+                <span class="mode-badge" id="modeBadge">🔄 Simulationsmodus</span>
+                <p style="margin-top: 15px; color: #666;">Kostenaufteilung auf 3 Parteien: Familie Bräuer, Familie Odermatt & Familie Stäheli</p>
+            </div>
+            <button onclick="handleLogout()" class="danger" style="padding: 10px 20px; font-size: 0.9em;">Abmelden</button>
         </div>
 
         <div class="controls">
@@ -63,7 +124,8 @@
 
             <div style="margin-top: 20px;">
                 <button onclick="saveSettings()">💾 Einstellungen speichern</button>
-                <button onclick="generatePDF()">📄 PDF Export</button> <button class="secondary" onclick="addManualCharge()">➕ Ladevorgang manuell hinzufügen</button>
+                <button onclick="generatePDF()">📄 PDF Export</button>
+                <button class="secondary" onclick="addManualCharge()">➕ Ladevorgang manuell hinzufügen</button>
                 <button class="secondary" onclick="markAsPaid()">✅ Als bezahlt markieren</button>
                 <button class="danger" onclick="resetData()">🗑️ Alle Daten zurücksetzen</button>
             </div>
