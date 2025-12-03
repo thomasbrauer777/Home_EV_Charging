@@ -56,11 +56,116 @@ function calculateChargeDetails(charge) {
 }
 
 // ============================================
-// DATA HANDLING
+// AUTHENTIFIZIERUNG & STATUSVERWALTUNG (NEU)
+// ============================================
+
+/**
+ * Zeigt die App-Oberfläche oder die Login-Seite, basierend auf dem Anmeldestatus.
+ * @param {boolean} isAuthenticated 
+ */
+function toggleViews(isAuthenticated) {
+    const appContainer = document.getElementById('appContainer');
+    const authContainer = document.getElementById('authContainer');
+    
+    if (isAuthenticated) {
+        appContainer.style.display = 'block';
+        authContainer.style.display = 'none';
+        console.log('✅ Benutzer angemeldet. App-Inhalt sichtbar.');
+    } else {
+        appContainer.style.display = 'none';
+        authContainer.style.display = 'block';
+        console.log('❌ Benutzer abgemeldet. Login-Seite sichtbar.');
+    }
+}
+
+/**
+ * Meldet den Benutzer mit E-Mail und Passwort an.
+ */
+async function handleLogin() {
+    const email = document.getElementById('emailInput').value;
+    const password = document.getElementById('passwordInput').value;
+    const errorDisplay = document.getElementById('authError');
+    
+    errorDisplay.style.display = 'none';
+    
+    const { error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password,
+    });
+    
+    if (error) {
+        console.error('Login-Fehler:', error.message);
+        errorDisplay.textContent = 'Anmeldung fehlgeschlagen. Überprüfen Sie E-Mail und Passwort.';
+        errorDisplay.style.display = 'block';
+    }
+}
+
+/**
+ * Sendet einen Magic Link an die E-Mail-Adresse.
+ */
+async function handleMagicLink() {
+    const email = document.getElementById('emailInput').value;
+    const errorDisplay = document.getElementById('authError');
+
+    if (!email) {
+        errorDisplay.textContent = 'Bitte geben Sie Ihre E-Mail-Adresse ein.';
+        errorDisplay.style.display = 'block';
+        return;
+    }
+
+    const { error } = await supabaseClient.auth.signInWithOtp({
+        email: email,
+        options: {
+            // Optional: Wenn Sie einen bestimmten Link verwenden möchten
+            // emailRedirectTo: 'http://deine-app.com/callback'
+        }
+    });
+
+    if (error) {
+        console.error('Magic Link Fehler:', error.message);
+        errorDisplay.textContent = 'Fehler beim Senden des Links. Ist die E-Mail korrekt?';
+        errorDisplay.style.display = 'block';
+    } else {
+        alert('✅ Anmelde-Link gesendet! Bitte überprüfen Sie Ihr Postfach.');
+    }
+}
+
+/**
+ * Meldet den Benutzer ab.
+ */
+async function handleLogout() {
+    if (confirm('Sicher, dass Sie sich abmelden möchten?')) {
+        const { error } = await supabaseClient.auth.signOut();
+        
+        if (error) {
+            console.error('Logout-Fehler:', error.message);
+            alert('❌ Fehler beim Abmelden!');
+        } else {
+            toggleViews(false);
+            // Nach dem Logout die Daten zurücksetzen, damit sie nicht versehentlich sichtbar bleiben
+            charges = [];
+            paymentHistory = [];
+            updateDisplay();
+        }
+    }
+}
+
+// ============================================
+// DATA HANDLING (Aktualisiert)
 // ============================================
 
 async function loadData() {
     try {
+        // NEU: Zuerst den Authentifizierungsstatus prüfen
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        
+        if (!user) {
+            toggleViews(false);
+            return;
+        }
+        
+        toggleViews(true); // Nur fortfahren, wenn angemeldet
+        
         const savedSettings = localStorage.getItem('evSettings');
         if (savedSettings) {
             const parsed = JSON.parse(savedSettings);
@@ -73,6 +178,8 @@ async function loadData() {
             updateModeDisplay();
         }
         
+        // ACHTUNG: Die folgenden Abfragen funktionieren nur, wenn die RLS-Policies 
+        // in Supabase auf 'authenticated' umgestellt wurden (siehe Anleitung unten).
         const { data: chargesData, error: chargesError } = await supabaseClient
             .from('charges')
             .select('*')
@@ -99,6 +206,7 @@ async function loadData() {
             console.log(`Loaded ${paymentHistory.length} payments from Supabase`);
         }
         
+        // Nur Demo-Daten generieren, wenn angemeldet und im Simulationsmodus
         if (settings.mode === 'simulation' && charges.length === 0) {
             await generateSimulationData();
             await generateDemoPaymentHistory();
@@ -107,7 +215,9 @@ async function loadData() {
         updateDisplay();
     } catch (error) {
         console.error('Error in loadData:', error);
-        alert('Fehler beim Laden der Daten. Bitte überprüfe deine Supabase-Konfiguration.');
+        // Bei einem allgemeinen Fehler zurück zur Login-Ansicht
+        toggleViews(false);
+        alert('Fehler beim Laden der Daten. Bitte überprüfe deine Supabase-Konfiguration oder den Login-Status.');
     }
 }
 
@@ -203,7 +313,7 @@ async function generateSimulationData() {
 
 
 // ============================================
-// PDF EXPORT FUNKTIONALITÄT (NEU)
+// PDF EXPORT FUNKTIONALITÄT
 // ============================================
 
 /**
@@ -219,7 +329,7 @@ function generatePDF() {
     const filename = `Abrechnung_EV_Charge_Share_${today}.pdf`;
 
     // Der Element-Selektor, der den Hauptinhalt der Seite umfasst
-    const element = document.querySelector('.container');
+    const element = document.querySelector('#appContainer');
     
     // Konfiguration für den PDF-Export
     const opt = {
@@ -647,8 +757,43 @@ async function resetData() {
     }
 }
 
-// Initialize
-loadData();
+// ============================================
+// INITIALISIERUNG & EVENT-LISTENERS (Aktualisiert)
+// ============================================
+
+// Haupt-Listener für Login-Aktionen
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialer Ladevorgang
+    loadData();
+
+    // Event Listener für den Anmelde-Button
+    document.getElementById('loginButton').addEventListener('click', handleLogin);
+
+    // Event Listener für "Magic Link"
+    document.getElementById('magicLinkButton').addEventListener('click', (e) => {
+        e.preventDefault();
+        handleMagicLink();
+    });
+
+    // Option: Login bei Enter-Taste
+    document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleLogin();
+        }
+    });
+
+    // Supabase Auth Listener (reagiert auf erfolgreichen Login/Logout)
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN') {
+            console.log('User signed in. Reloading data.');
+            // Daten neu laden, um die App-Ansicht zu zeigen
+            loadData(); 
+        } else if (event === 'SIGNED_OUT') {
+            console.log('User signed out. Showing login view.');
+            toggleViews(false);
+        }
+    });
+});
 
 // Mode selector change
 document.getElementById('modeSelect').addEventListener('change', function() {
