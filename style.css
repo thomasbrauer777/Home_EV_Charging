@@ -168,8 +168,7 @@ button {
     font-weight: 700;
     cursor: pointer;
     transition: background 0.3s, transform 0.1s;
-    margin-right: 10px;
-    /* margin-top: 10px; is removed in previous step */
+    /* margin-right: 10px; ENTFERNT */
 }
 
 button:hover {
