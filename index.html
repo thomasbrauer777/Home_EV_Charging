@@ -78,49 +78,56 @@
         </div>
 
         <div class="controls">
-            <h2 style="margin-bottom: 20px; color: var(--text-color-light);">⚙️ Einstellungen</h2>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                <div class="control-group">
-                    <label>Modus</label>
-                    <select id="modeSelect">
-                        <option value="simulation">Simulation (Demo)</option>
-                        <option value="live">Live (Shelly verbunden)</option>
-                    </select>
-                </div>
+    <h2 style="margin-bottom: 20px; color: var(--text-color-light);">⚙️ Einstellungen</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <div class="control-group">
+            <label>Modus</label>
+            <select id="modeSelect">
+                <option value="simulation">Simulation (Demo)</option>
+                <option value="live">Live (myStrom Switch)</option>
+            </select>
+        </div>
 
-                <div class="control-group">
-                    <label>Hochtarif - Tag (CHF/kWh)</label>
-                    <input type="number" id="priceHighInput" value="0.1668" step="0.0001" min="0">
-                    <small style="color: var(--text-color-dark); font-size: 0.85em;">Energie + Netz + Abgaben (7-22 Uhr)</small>
-                </div>
+        <div class="control-group">
+            <label>Hochtarif - Tag (CHF/kWh)</label>
+            <input type="number" id="priceHighInput" value="0.1668" step="0.0001" min="0">
+            <small style="color: var(--text-color-dark); font-size: 0.85em;">Energie + Netz + Abgaben (7-22 Uhr)</small>
+        </div>
 
-                <div class="control-group">
-                    <label>Niedertarif - Nacht (CHF/kWh)</label>
-                    <input type="number" id="priceLowInput" value="0.1606" step="0.0001" min="0">
-                    <small style="color: var(--text-color-dark); font-size: 0.85em;">Energie + Netz + Abgaben (22-7 Uhr)</small>
-                </div>
+        <div class="control-group">
+            <label>Niedertarif - Nacht (CHF/kWh)</label>
+            <input type="number" id="priceLowInput" value="0.1606" step="0.0001" min="0">
+            <small style="color: var(--text-color-dark); font-size: 0.85em;">Energie + Netz + Abgaben (22-7 Uhr)</small>
+        </div>
 
-                <div class="control-group" id="shellyModelGroup" style="display: none;">
-                    <label>Shelly Modell</label>
-                    <select id="shellyModel">
-                        <option value="">-- Modell wählen --</option>
-                        <option value="plug-s">Shelly Plug S (Gen1) - Schuko, 1-phasig</option>
-                        <option value="plug-s-plus">Shelly Plus Plug S (Gen2) - Schuko, 1-phasig</option>
-                        <option value="3em">Shelly 3EM (Gen1) - 3-Phasen Energiemessung</option>
-                        <option value="pro-3em">Shelly Pro 3EM (Gen2) - 3-Phasen Professional</option>
-                        <option value="1pm">Shelly 1PM (Gen1) - DIN-Schiene, 1-phasig</option>
-                        <option value="plus-1pm">Shelly Plus 1PM (Gen2) - DIN-Schiene, 1-phasig</option>
-                    </select>
-                    <small style="color: var(--text-color-dark); font-size: 0.85em;">Wähle dein Shelly-Modell für die korrekte API-Integration</small>
-                </div>
+        <div class="control-group" id="myStromGroup" style="display: none;">
+            <label>myStrom IP-Adresse</label>
+            <input type="text" id="myStromIp" placeholder="192.168.1.XX">
+            <small style="color: var(--text-color-dark); font-size: 0.85em;">Lokale IP des Switches</small>
+            <button onclick="testMyStromConnection()" style="margin-top: 10px; width: 100%; padding: 8px; font-size: 0.9em;" class="secondary">📡 Verbindung testen</button>
+        </div>
+    </div>
+    
+    <div id="liveChargingControls" style="display: none; margin-top: 20px; padding: 20px; background: rgba(0, 255, 194, 0.1); border: 1px solid var(--primary-color); border-radius: 8px;">
+        <h3 style="color: var(--primary-color); margin-bottom: 15px;">🔋 Aktiver Ladevorgang</h3>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <button id="btnStartCharge" onclick="startMyStromCharge()">▶️ Laden Starten</button>
+            <button id="btnStopCharge" onclick="stopMyStromCharge()" class="danger" style="display: none;">⏹️ Laden Beenden & Speichern</button>
+            <div id="liveStatus" style="font-weight: bold;">Bereit</div>
+        </div>
+        <div id="liveData" style="margin-top: 10px; font-family: monospace; color: var(--text-color-dark);">
+            Aktuelle Leistung: <span id="currentPower">0</span> W | Bisher geladen: <span id="currentSessionKwh">0.00</span> kWh
+        </div>
+    </div>
 
-                <div class="control-group" id="shellyIpGroup" style="display: none;">
-                    <label>Shelly IP-Adresse (optional)</label>
-                    <input type="text" id="shellyIp" placeholder="192.168.1.100">
-                    <small style="color: var(--text-color-dark); font-size: 0.85em;">Nur für lokale Verbindung - Cloud API empfohlen!</small>
-                </div>
-            </div>
+    <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
+        <button onclick="saveSettings()">💾 Einstellungen speichern</button>
+        <button class="secondary" onclick="addManualCharge()">➕ Manuell hinzufügen</button>
+        <button class="secondary" onclick="markAsPaid()">✅ Als bezahlt markieren</button>
+        <button class="danger" onclick="resetData()">🗑️ Reset</button>
+    </div>
+</div>
             
             <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
                 <button onclick="saveSettings()">💾 Einstellungen speichern</button>
