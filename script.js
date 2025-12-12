@@ -722,7 +722,195 @@ async function resetData() {
         }
     }
 }
+// ============================================
+// MYSTROM INTEGRATION
+// ============================================
 
+let myStromInterval = null;
+let currentSessionStartWs = null; // Startwert in Watt-Sekunden
+
+// Einstellungen aktualisieren (Shelly raus, myStrom rein)
+function updateModeDisplay() {
+    const badge = document.getElementById('modeBadge');
+    const myStromGroup = document.getElementById('myStromGroup');
+    const liveControls = document.getElementById('liveChargingControls');
+    
+    // UI Elemente anzeigen/verstecken
+    if (settings.mode === 'simulation') {
+        badge.className = 'mode-badge mode-simulation';
+        badge.textContent = '🔄 Simulationsmodus';
+        myStromGroup.style.display = 'none';
+        liveControls.style.display = 'none';
+        if(myStromInterval) clearInterval(myStromInterval);
+    } else {
+        badge.className = 'mode-badge mode-live';
+        badge.textContent = '🟢 Live-Modus (myStrom)';
+        myStromGroup.style.display = 'block';
+        liveControls.style.display = 'block';
+        
+        // Prüfen ob bereits eine Session läuft (aus LocalStorage wiederherstellen)
+        const savedStart = localStorage.getItem('myStromSessionStart');
+        if (savedStart) {
+            currentSessionStartWs = parseFloat(savedStart);
+            toggleChargingUI(true);
+            startMonitoring();
+        }
+    }
+}
+
+// Verbindung testen und aktuellen Wert holen
+async function getMyStromReport() {
+    const ip = document.getElementById('myStromIp').value || settings.shellyIp; // Fallback auf altes Feld
+    if (!ip) {
+        alert('Bitte IP-Adresse eingeben!');
+        return null;
+    }
+
+    try {
+        // Der Trick bei myStrom: /report liefert JSON mit 'power' (Watt) und 'Ws' (Watt-Sekunden)
+        const response = await fetch(`http://${ip}/report`);
+        if (!response.ok) throw new Error('Keine Antwort');
+        const data = await response.json();
+        return data; // Erwartet: { power: 300, Ws: 123456, relay: true ... }
+    } catch (error) {
+        console.error('myStrom Fehler:', error);
+        return null;
+    }
+}
+
+async function testMyStromConnection() {
+    const data = await getMyStromReport();
+    if (data) {
+        alert(`✅ Verbindung erfolgreich!\nAktuelle Leistung: ${data.power} W\nZählerstand: ${(data.Ws / 3600 / 1000).toFixed(3)} kWh`);
+    } else {
+        alert('❌ Verbindung fehlgeschlagen. \n\n1. Prüfe die IP.\n2. Bist du im gleichen WLAN?\n3. Browser blockiert evtl. lokale Anfragen (Mixed Content).');
+    }
+}
+
+// Startet den Ladevorgang
+async function startMyStromCharge() {
+    const data = await getMyStromReport();
+    if (!data) {
+        alert('Konnte myStrom nicht erreichen. Prüfe IP.');
+        return;
+    }
+
+    // Wir merken uns den Zählerstand (Ws) beim Start
+    currentSessionStartWs = data.Ws;
+    localStorage.setItem('myStromSessionStart', currentSessionStartWs);
+    
+    // Optional: Switch einschalten via API
+    try { fetch(`http://${settings.shellyIp}/relay?state=1`); } catch(e){}
+
+    toggleChargingUI(true);
+    startMonitoring();
+}
+
+// Beendet den Ladevorgang und speichert in Supabase
+async function stopMyStromCharge() {
+    if (confirm('Ladevorgang beenden und abrechnen?')) {
+        const data = await getMyStromReport();
+        if (!data) {
+            alert('Fehler: Konnte Endwert nicht abrufen. Bitte manuell nachtragen.');
+            return;
+        }
+
+        const endWs = data.Ws;
+        const consumedWs = endWs - currentSessionStartWs;
+        
+        // Umrechnung: Watt-Sekunden -> kWh
+        // 1 kWh = 3.600.000 Ws
+        let kwh = consumedWs / 3600000;
+        
+        // Sicherheits-Check falls Zähler zurückgesetzt wurde (z.B. Stromausfall)
+        if (kwh < 0) {
+            alert('Achtung: Der Zählerstand ist kleiner als beim Start (evtl. Reset?). Speichere als 0.');
+            kwh = 0;
+        }
+
+        // Runden auf 3 Stellen
+        kwh = Math.round(kwh * 1000) / 1000;
+
+        // In Supabase speichern (nutzt existierende Logik)
+        const now = new Date();
+        const tariff = getTariff(now);
+        
+        const newCharge = {
+            installation_id: INSTALLATION_ID,
+            date: now.toISOString(),
+            kwh: kwh,
+            tariff: tariff.type,
+            price: tariff.price
+        };
+
+        const { error } = await supabaseClient.from('charges').insert([newCharge]);
+
+        if (error) {
+            alert('Fehler beim Speichern!');
+        } else {
+            // UI Reset
+            localStorage.removeItem('myStromSessionStart');
+            currentSessionStartWs = null;
+            toggleChargingUI(false);
+            stopMonitoring();
+            
+            // Daten neu laden
+            charges.unshift(newCharge); // Schnell-Update für UI
+            loadData(); // Sauberes Neuladen
+            
+            alert(`✅ Geladen: ${kwh.toFixed(3)} kWh\nKosten: ${currencyFormatter.format(kwh * tariff.price)} CHF`);
+        }
+    }
+}
+
+// Überwachungsschleife für Live-Anzeige
+function startMonitoring() {
+    if (myStromInterval) clearInterval(myStromInterval);
+    
+    // Sofort einmal ausführen
+    updateLiveStatus();
+
+    // Alle 5 Sekunden aktualisieren
+    myStromInterval = setInterval(updateLiveStatus, 5000);
+}
+
+function stopMonitoring() {
+    if (myStromInterval) clearInterval(myStromInterval);
+    document.getElementById('currentPower').textContent = '0';
+}
+
+async function updateLiveStatus() {
+    const data = await getMyStromReport();
+    if (data) {
+        document.getElementById('currentPower').textContent = data.power.toFixed(1);
+        
+        if (currentSessionStartWs !== null) {
+            const currentDiffWs = data.Ws - currentSessionStartWs;
+            const kwh = Math.max(0, currentDiffWs / 3600000);
+            document.getElementById('currentSessionKwh').textContent = kwh.toFixed(3);
+        }
+    }
+}
+
+function toggleChargingUI(isCharging) {
+    const btnStart = document.getElementById('btnStartCharge');
+    const btnStop = document.getElementById('btnStopCharge');
+    const status = document.getElementById('liveStatus');
+
+    if (isCharging) {
+        btnStart.style.display = 'none';
+        btnStop.style.display = 'inline-block';
+        status.textContent = '⚡ Lädt...';
+        status.style.color = '#00ffc2'; // Green
+        status.className = 'pulse-animation'; // Optional CSS class
+    } else {
+        btnStart.style.display = 'inline-block';
+        btnStop.style.display = 'none';
+        status.textContent = 'Bereit';
+        status.style.color = '#ccc';
+        status.className = '';
+    }
+}
 // ============================================
 // INITIALISIERUNG & EVENT-LISTENERS
 // ============================================
