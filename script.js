@@ -1,7 +1,6 @@
 // ============================================
 // SUPABASE KONFIGURATION
 // ============================================
-// WICHTIG: Credentials aus PROJEKT_ZUSAMMENFASSUNG.md
 const SUPABASE_URL = 'https://fgvjxgcgbdzuewukxedo.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZndmp4Z2NnYmR6dWV3dWt4ZWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MTE3MTksImV4cCI6MjA3OTk4NzcxOX0.DhWTfgz9nfpt1OHbUJiETWkIwVU4lk6FweEHZl0stDg'
 const INSTALLATION_ID = 'braeuer-odermatt-staeheli-bremgarten'
@@ -29,13 +28,13 @@ let settings = {
     lastReset: null
 };
 
-// Formatierer für konsistente Ausgabe (Schweizer Locale)
+// Formatierer
 const currencyFormatter = new Intl.NumberFormat('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const numberFormatter = new Intl.NumberFormat('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const dateFormatter = new Intl.DateTimeFormat('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
 const timeFormatter = new Intl.DateTimeFormat('de-CH', { hour: '2-digit', minute: '2-digit' });
 
-// Bestimmt den Tarif basierend auf der Zeit (7-22 = high, 22-7 = low)
+// Tarif Bestimmung
 function getTariff(date) {
     const hour = date.getHours();
     if (hour >= 7 && hour < 22) {
@@ -45,7 +44,7 @@ function getTariff(date) {
     }
 }
 
-// Zentrale Funktion zur Berechnung der Details eines Ladevorgangs
+// Kostenberechnung
 function calculateChargeDetails(charge) {
     const date = new Date(charge.date);
     const tariffDetails = getTariff(date);
@@ -63,10 +62,6 @@ function calculateChargeDetails(charge) {
 // MYSTROM INTEGRATION LOGIK
 // ============================================
 
-/**
- * Holt den Statusbericht vom myStrom Switch
- * API Endpoint: http://[IP]/report
- */
 async function getMyStromReport() {
     const ip = settings.myStromIp;
     if (!ip) {
@@ -75,12 +70,9 @@ async function getMyStromReport() {
     }
 
     try {
-        // Hinweis: Der Browser könnte dies blockieren, wenn die Seite über HTTPS geladen wird
-        // aber die IP lokal (http) ist. Im Heimnetzwerk funktioniert es meistens.
         const response = await fetch(`http://${ip}/report`);
         if (!response.ok) throw new Error('Keine Antwort vom Gerät');
         const data = await response.json();
-        // Erwartetes Format: { power: 300, Ws: 123456, relay: true ... }
         return data; 
     } catch (error) {
         console.error('myStrom Fehler:', error);
@@ -89,11 +81,9 @@ async function getMyStromReport() {
 }
 
 async function testMyStromConnection() {
-    // Nimmt den Wert direkt aus dem Input Feld für den Test
     const inputIp = document.getElementById('myStromIp').value;
     if(!inputIp) { alert('Bitte IP eingeben'); return; }
     
-    // Temporär die IP nutzen für den Test
     const tempIp = settings.myStromIp;
     settings.myStromIp = inputIp;
 
@@ -104,7 +94,6 @@ async function testMyStromConnection() {
         alert('❌ Verbindung fehlgeschlagen.\n\nPrüfe:\n1. Ist die IP korrekt?\n2. Bist du im gleichen WLAN?\n3. Browser-Sicherheit (Mixed Content).');
     }
     
-    // Reset falls nicht gespeichert
     settings.myStromIp = tempIp;
 }
 
@@ -115,14 +104,11 @@ async function startMyStromCharge() {
         return;
     }
 
-    // 1. Startwert (Ws) speichern
     currentSessionStartWs = data.Ws;
     localStorage.setItem('myStromSessionStart', currentSessionStartWs);
     
-    // 2. Optional: Switch einschalten (API: /relay?state=1)
     try { fetch(`http://${settings.myStromIp}/relay?state=1`); } catch(e){}
 
-    // 3. UI umschalten
     toggleChargingUI(true);
     startMonitoring();
 }
@@ -137,24 +123,18 @@ async function stopMyStromCharge() {
     }
 
     const endWs = data.Ws;
-    // Differenz berechnen
     const consumedWs = endWs - currentSessionStartWs;
-    
-    // Umrechnung: Watt-Sekunden -> kWh (1 kWh = 3.600.000 Ws)
     let kwh = consumedWs / 3600000;
     
     if (kwh < 0) {
-        kwh = 0; // Fallback falls Zähler resettet wurde
+        kwh = 0; 
         alert('Achtung: Zählerstand war kleiner als beim Start. Speichere 0 kWh.');
     }
 
-    // Runden für Datenbank
     kwh = parseFloat(kwh.toFixed(4));
 
-    // Optional: Switch ausschalten
     try { fetch(`http://${settings.myStromIp}/relay?state=0`); } catch(e){}
 
-    // Speichern
     const now = new Date();
     const tariff = getTariff(now);
     
@@ -170,15 +150,13 @@ async function stopMyStromCharge() {
 
     if (error) {
         console.error('Supabase Error', error);
-        alert('Fehler beim Speichern in die Datenbank!');
+        alert('Fehler beim Speichern in die Datenbank! Bist du eingeloggt?');
     } else {
-        // Aufräumen
         localStorage.removeItem('myStromSessionStart');
         currentSessionStartWs = null;
         toggleChargingUI(false);
         stopMonitoring();
         
-        // UI aktualisieren
         charges.unshift(newCharge);
         loadData();
         
@@ -186,11 +164,10 @@ async function stopMyStromCharge() {
     }
 }
 
-// Live-Monitoring Loop
 function startMonitoring() {
     if (myStromInterval) clearInterval(myStromInterval);
-    updateLiveStatus(); // Sofort einmal
-    myStromInterval = setInterval(updateLiveStatus, 5000); // Alle 5 Sek
+    updateLiveStatus();
+    myStromInterval = setInterval(updateLiveStatus, 5000);
 }
 
 function stopMonitoring() {
@@ -243,9 +220,11 @@ function toggleViews(isAuthenticated) {
     if (isAuthenticated) {
         appContainer.style.display = 'block';
         authContainer.style.display = 'none';
+        console.log('✅ Angemeldet. UI sichtbar.');
     } else {
         appContainer.style.display = 'none';
         authContainer.style.display = 'block';
+        console.log('❌ Nicht angemeldet. Login sichtbar.');
     }
 }
 
@@ -262,6 +241,7 @@ async function handleLogin() {
     });
     
     if (error) {
+        console.error('Login-Fehler:', error.message);
         errorDisplay.textContent = 'Anmeldung fehlgeschlagen. Überprüfen Sie E-Mail und Passwort.';
         errorDisplay.style.display = 'block';
     }
@@ -282,6 +262,7 @@ async function handleMagicLink() {
     });
 
     if (error) {
+        console.error('Magic Link Fehler:', error.message);
         errorDisplay.textContent = 'Fehler beim Senden des Links.';
         errorDisplay.style.display = 'block';
     } else {
@@ -325,12 +306,10 @@ async function loadData() {
             document.getElementById('priceLowInput').value = settings.priceLow || 0.1606;
             document.getElementById('myStromIp').value = settings.myStromIp || ''; // IP Feld füllen
             
-            // Check ob noch eine Session läuft (Browser Refresh)
             const savedSession = localStorage.getItem('myStromSessionStart');
             if (savedSession && settings.mode === 'live') {
                 currentSessionStartWs = parseFloat(savedSession);
-                updateModeDisplay(); // UI aktualisieren
-                // Ein kleiner Delay damit UI da ist
+                updateModeDisplay(); 
                 setTimeout(() => {
                     toggleChargingUI(true);
                     startMonitoring();
@@ -366,7 +345,6 @@ async function loadData() {
             paymentHistory = paymentsData || [];
         }
         
-        // Simulation Data falls leer
         if (settings.mode === 'simulation' && charges.length === 0) {
             await generateSimulationData();
         }
