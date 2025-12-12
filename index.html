@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-Auto Ladekosten - Gesicherte Abrechnung</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="style.css">
     <style>
         /* Zusätzlicher Stil für die Login-Karte */
@@ -13,15 +12,15 @@
             max-width: 400px;
             margin: 10vh auto;
             padding: 40px;
-            background: var(--background-card); /* Angepasst an Dark Mode Variable */
+            background: var(--background-card);
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); /* Angenommener Dark Mode Schatten */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             border: 1px solid var(--border-color);
         }
         .auth-card h2 {
             margin-bottom: 25px;
             text-align: center;
-            color: var(--text-color-light); /* Angenommen für Dark Mode */
+            color: var(--text-color-light);
         }
         .auth-card input {
             width: 100%;
@@ -29,7 +28,7 @@
             margin-bottom: 15px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            background-color: #1f2937; /* Angenommener Input-Hintergrund */
+            background-color: #1f2937;
             color: var(--text-color-light);
         }
         .auth-card button {
@@ -40,17 +39,26 @@
             font-weight: bold;
             cursor: pointer;
             background-color: var(--primary-color);
-            color: var(--background-main); /* Angenommen für Dark Mode */
+            color: var(--background-main);
             transition: background-color 0.3s;
         }
         .auth-card button:hover {
-            background-color: var(--accent-dark); /* Angenommen für Dark Mode */
+            background-color: var(--accent-dark);
         }
         .error-message {
-            color: #ff9999; /* Hellrot für Dark Mode */
+            color: #ff9999;
             margin-bottom: 15px;
             text-align: center;
             font-weight: 600;
+        }
+        /* Animation für den Ladestatus */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
         }
     </style>
 </head>
@@ -78,56 +86,49 @@
         </div>
 
         <div class="controls">
-    <h2 style="margin-bottom: 20px; color: var(--text-color-light);">⚙️ Einstellungen</h2>
-    
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-        <div class="control-group">
-            <label>Modus</label>
-            <select id="modeSelect">
-                <option value="simulation">Simulation (Demo)</option>
-                <option value="live">Live (myStrom Switch)</option>
-            </select>
-        </div>
+            <h2 style="margin-bottom: 20px; color: var(--text-color-light);">⚙️ Einstellungen</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div class="control-group">
+                    <label>Modus</label>
+                    <select id="modeSelect">
+                        <option value="simulation">Simulation (Demo)</option>
+                        <option value="live">Live (myStrom Switch)</option>
+                    </select>
+                </div>
 
-        <div class="control-group">
-            <label>Hochtarif - Tag (CHF/kWh)</label>
-            <input type="number" id="priceHighInput" value="0.1668" step="0.0001" min="0">
-            <small style="color: var(--text-color-dark); font-size: 0.85em;">Energie + Netz + Abgaben (7-22 Uhr)</small>
-        </div>
+                <div class="control-group">
+                    <label>Hochtarif - Tag (CHF/kWh)</label>
+                    <input type="number" id="priceHighInput" value="0.1668" step="0.0001" min="0">
+                    <small style="color: var(--text-color-dark); font-size: 0.85em;">Energie + Netz + Abgaben (7-22 Uhr)</small>
+                </div>
 
-        <div class="control-group">
-            <label>Niedertarif - Nacht (CHF/kWh)</label>
-            <input type="number" id="priceLowInput" value="0.1606" step="0.0001" min="0">
-            <small style="color: var(--text-color-dark); font-size: 0.85em;">Energie + Netz + Abgaben (22-7 Uhr)</small>
-        </div>
+                <div class="control-group">
+                    <label>Niedertarif - Nacht (CHF/kWh)</label>
+                    <input type="number" id="priceLowInput" value="0.1606" step="0.0001" min="0">
+                    <small style="color: var(--text-color-dark); font-size: 0.85em;">Energie + Netz + Abgaben (22-7 Uhr)</small>
+                </div>
 
-        <div class="control-group" id="myStromGroup" style="display: none;">
-            <label>myStrom IP-Adresse</label>
-            <input type="text" id="myStromIp" placeholder="192.168.1.XX">
-            <small style="color: var(--text-color-dark); font-size: 0.85em;">Lokale IP des Switches</small>
-            <button onclick="testMyStromConnection()" style="margin-top: 10px; width: 100%; padding: 8px; font-size: 0.9em;" class="secondary">📡 Verbindung testen</button>
-        </div>
-    </div>
-    
-    <div id="liveChargingControls" style="display: none; margin-top: 20px; padding: 20px; background: rgba(0, 255, 194, 0.1); border: 1px solid var(--primary-color); border-radius: 8px;">
-        <h3 style="color: var(--primary-color); margin-bottom: 15px;">🔋 Aktiver Ladevorgang</h3>
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <button id="btnStartCharge" onclick="startMyStromCharge()">▶️ Laden Starten</button>
-            <button id="btnStopCharge" onclick="stopMyStromCharge()" class="danger" style="display: none;">⏹️ Laden Beenden & Speichern</button>
-            <div id="liveStatus" style="font-weight: bold;">Bereit</div>
-        </div>
-        <div id="liveData" style="margin-top: 10px; font-family: monospace; color: var(--text-color-dark);">
-            Aktuelle Leistung: <span id="currentPower">0</span> W | Bisher geladen: <span id="currentSessionKwh">0.00</span> kWh
-        </div>
-    </div>
+                <div class="control-group" id="myStromGroup" style="display: none;">
+                    <label>myStrom IP-Adresse</label>
+                    <input type="text" id="myStromIp" placeholder="z.B. 192.168.1.50">
+                    <small style="color: var(--text-color-dark); font-size: 0.85em;">Lokale IP des Adapters</small>
+                    <button onclick="testMyStromConnection()" style="margin-top: 10px; width: 100%; padding: 8px; font-size: 0.9em;" class="secondary">📡 Verbindung testen</button>
+                </div>
+            </div>
 
-    <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
-        <button onclick="saveSettings()">💾 Einstellungen speichern</button>
-        <button class="secondary" onclick="addManualCharge()">➕ Manuell hinzufügen</button>
-        <button class="secondary" onclick="markAsPaid()">✅ Als bezahlt markieren</button>
-        <button class="danger" onclick="resetData()">🗑️ Reset</button>
-    </div>
-</div>
+            <div id="liveChargingControls" style="display: none; margin-top: 20px; padding: 20px; background: rgba(0, 255, 194, 0.05); border: 1px solid var(--primary-color); border-radius: 8px;">
+                <h3 style="color: var(--primary-color); margin-bottom: 15px;">🔋 Aktiver Ladevorgang</h3>
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <button id="btnStartCharge" onclick="startMyStromCharge()">▶️ Laden Starten</button>
+                    <button id="btnStopCharge" onclick="stopMyStromCharge()" class="danger" style="display: none;">⏹️ Laden Beenden & Speichern</button>
+                    <div id="liveStatus" style="font-weight: bold; color: #ccc;">Bereit</div>
+                </div>
+                <div style="margin-top: 15px; font-family: monospace; color: var(--text-color-light); background: #1f2937; padding: 10px; border-radius: 4px;">
+                    Aktuelle Leistung: <span id="currentPower" style="color: var(--primary-color);">0</span> W <br>
+                    Bisher geladen: <span id="currentSessionKwh" style="color: var(--primary-color); font-size: 1.2em; font-weight: bold;">0.000</span> kWh
+                </div>
+            </div>
             
             <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
                 <button onclick="saveSettings()">💾 Einstellungen speichern</button>
@@ -138,14 +139,14 @@
 
             <div class="info-box">
                 <h3>ℹ️ Wie funktioniert das?</h3>
-                <p><strong>Simulationsmodus:</strong> Generiert automatisch realistische Ladedaten zum Testen. Perfekt zum Ausprobieren!<br>
-                <strong>Live-Modus:</strong> Verbindet sich mit deinem Shelly und zeigt echte Verbrauchsdaten an.<br>
-                <strong>Shelly-Modelle:</strong> Verschiedene Modelle haben unterschiedliche APIs (Gen1 vs. Gen2). Wähle dein Modell für die richtige Integration.<br>
-                <strong>Stromtarife (CLASSIC):</strong> Das System verwendet automatisch den richtigen Tarif basierend auf der Ladezeit:<br>
-                • <strong>Hochtarif (Tag)</strong>: 7-22 Uhr → 16.68 Rp./kWh<br>
-                • <strong>Niedertarif (Nacht)</strong>: 22-7 Uhr → 16.06 Rp./kWh<br>
-                <strong>Kostenaufteilung:</strong> Die Gesamtkosten werden automatisch durch 3 geteilt (Familie Bräuer, Familie Odermatt, Familie Stäheli).<br>
-                <strong>Gesamtkosten-Übersicht:</strong> Wenn ihr "Als bezahlt markieren" klickt, werden die Kosten in die Monatsübersicht übertragen. So kann Familie Bräuer genau sehen, wie viel sie pro Monat für Ladekosten ausgegeben hat!</p>
+                <p>
+                <strong>Simulationsmodus:</strong> Generiert Testdaten.<br>
+                <strong>Live-Modus (myStrom):</strong> Verbindet sich mit dem myStrom Switch. <br>
+                1. Auto einstecken.<br>
+                2. Auf <strong>"▶️ Laden Starten"</strong> klicken (Zählerstand wird gemerkt).<br>
+                3. Wenn fertig, auf <strong>"⏹️ Beenden"</strong> klicken. Die Differenz wird berechnet und gespeichert.<br>
+                <strong>Hinweis:</strong> Funktioniert am besten im Heim-WLAN.
+                </p>
             </div>
         </div>
 
@@ -308,7 +309,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script src="script.js"></script>
 </body>
 </html>
